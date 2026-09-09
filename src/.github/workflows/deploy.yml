@@ -1,0 +1,39 @@
+name: Build & deploy (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+    paths: ['data/**', 'src/**', 'build.js', 'update.js', '.github/workflows/deploy.yml']
+  workflow_dispatch:          # bouton "Run workflow" dans l'onglet Actions
+  repository_dispatch:        # déclenchable par une API / n8n / raccourci iPhone (event_type: "rebuild")
+    types: [rebuild]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - id: pages
+        uses: actions/configure-pages@v5
+      - name: Build site + ICS feeds
+        run: node build.js
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+      - id: deploy
+        uses: actions/deploy-pages@v4
