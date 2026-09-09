@@ -1,0 +1,10 @@
+[build]
+  command = "node build.js"
+  publish = "dist"
+
+[[headers]]
+  for = "/feeds/*.ics"
+  [headers.values]
+    Content-Type = "text/calendar; charset=utf-8"
+    Cache-Control = "public, max-age=300"
+    Access-Control-Allow-Origin = "*"
