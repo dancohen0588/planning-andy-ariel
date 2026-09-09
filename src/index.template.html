@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Andy & Ariel 2026-2027</title>
+<style>
+  :root {
+    --andy: #d97706; --andy-bg: #fef3c7; --andy-dark: #92400e;
+    --ariel: #2563eb; --ariel-bg: #dbeafe; --ariel-dark: #1e3a8a;
+    --commun: #059669; --commun-bg: #d1fae5;
+    --weekend: #f1f5f9; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', -apple-system, system-ui, sans-serif; background: #fafafa; color: var(--text); padding: 24px; line-height: 1.5; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 3px solid var(--text); }
+  h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .subtitle { color: var(--muted); font-size: 15px; }
+  h2 { font-size: 22px; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+
+  /* Toolbar */
+  .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .tabs, .filters { display: flex; gap: 6px; background: white; padding: 6px; border-radius: 12px; border: 1px solid var(--border); }
+  .tab, .chip { border: none; background: transparent; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; color: var(--muted); transition: all .15s; }
+  .tab.active { background: var(--text); color: white; }
+  .chip.active[data-filter="all"] { background: var(--text); color: white; }
+  .chip.active[data-filter="andy"] { background: var(--andy); color: white; }
+  .chip.active[data-filter="ariel"] { background: var(--ariel); color: white; }
+  .chip:hover:not(.active), .tab:hover:not(.active) { background: #f1f5f9; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Legend + stats */
+  .legend { display: flex; justify-content: center; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+  .legend-item { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 13px; border: 2px solid; }
+  .legend-andy { background: var(--andy-bg); color: var(--andy); border-color: var(--andy); }
+  .legend-ariel { background: var(--ariel-bg); color: var(--ariel); border-color: var(--ariel); }
+  .legend-commun { background: var(--commun-bg); color: var(--commun); border-color: var(--commun); }
+  .legend-school { background: white; color: var(--muted); border-color: var(--border); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 24px; }
+  .stat { text-align: center; padding: 18px; border-radius: 12px; }
+  .stat.andy { background: var(--andy-bg); } .stat.ariel { background: var(--ariel-bg); } .stat.commun { background: var(--commun-bg); }
+  .stat .number { font-size: 34px; font-weight: 800; line-height: 1; }
+  .stat.andy .number { color: var(--andy); } .stat.ariel .number { color: var(--ariel); } .stat.commun .number { color: var(--commun); }
+  .stat .label { font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--muted); margin-top: 8px; letter-spacing: .05em; }
+
+  /* Calendar */
+  .hint { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 28px; }
+  .month { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 1px solid var(--border); }
+  .month-header { padding: 10px; background: var(--text); color: white; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 13px; }
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); padding: 1px; }
+  .day-name { background: #f8fafc; padding: 5px 0; text-align: center; font-size: 10px; font-weight: 700; color: var(--muted); }
+  .day { background: white; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; position: relative; cursor: pointer; transition: transform .1s; }
+  .day:not(.empty):hover { transform: scale(1.15); z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,.2); border-radius: 4px; }
+  .day.empty { background: #fafafa; color: transparent; cursor: default; }
+  .day.weekend { background: var(--weekend); color: var(--muted); }
+  .day.andy { background: var(--andy-bg); color: var(--andy); font-weight: 700; }
+  .day.ariel { background: var(--ariel-bg); color: var(--ariel); font-weight: 700; }
+  .day.commun { background: var(--commun-bg); color: var(--commun); font-weight: 800; box-shadow: inset 0 0 0 2px var(--commun); }
+  .day.partial { background: linear-gradient(135deg, var(--andy-bg) 50%, white 50%); color: var(--andy); font-weight: 700; }
+  .day .badge { position: absolute; top: 2px; right: 2px; width: 13px; height: 13px; border-radius: 50%; color: white; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .day.absence::after { content: '✈️'; position: absolute; top: 1px; left: 2px; font-size: 8px; }
+  .care-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .care-table th { text-align: left; padding: 8px 10px; background: #f8fafc; border-bottom: 2px solid var(--border); font-size: 11px; text-transform: uppercase; color: var(--muted); }
+  .care-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .care-table tr.past td { opacity: .5; }
+  .care-table tr.alert td { background: #fef2f2; }
+  .care-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; }
+  .care-tag.todo { background: #fee2e2; color: #b91c1c; }
+  .care-tag.none { background: #f1f5f9; color: var(--muted); font-weight: 500; }
+  .people { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .person { padding: 12px 14px; border-radius: 10px; border-left: 5px solid; font-size: 13px; }
+  .person b { font-size: 15px; display: block; }
+  .child-panel.care { border-color: #7c3aed; background: #faf5ff; }
+  .child-panel.care h4 { color: #7c3aed; }
+  .day.today { outline: 3px solid #ef4444; outline-offset: -3px; }
+  .day .dot { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; }
+  .day .dot i { width: 4px; height: 4px; border-radius: 50%; display: block; }
+  .dot .a { background: var(--andy); } .dot .r { background: var(--ariel); }
+
+  /* Common cards */
+  .card-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 24px; }
+  .common-vacations { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .common-card { background: var(--commun-bg); border: 2px solid var(--commun); border-radius: 12px; padding: 14px; }
+  .common-card .title { font-weight: 700; color: var(--commun); font-size: 15px; margin-bottom: 4px; }
+  .common-card .dates { font-size: 13px; margin-bottom: 8px; }
+  .common-card .duration { display: inline-block; background: var(--commun); color: white; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+
+  /* Weekly view */
+  .week-table { width: 100%; border-collapse: separate; border-spacing: 0; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 1px solid var(--border); }
+  .week-table th { padding: 14px; text-align: left; font-size: 15px; text-transform: uppercase; letter-spacing: .05em; }
+  .week-table th.day-col { background: var(--text); color: white; width: 130px; }
+  .week-table th.andy-col { background: var(--andy); color: white; }
+  .week-table th.ariel-col { background: var(--ariel); color: white; }
+  .week-table td { padding: 12px 14px; vertical-align: top; border-bottom: 1px solid var(--border); }
+  .week-table td.day-col { font-weight: 800; font-size: 16px; background: #f8fafc; }
+  .week-table td.day-col small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); }
+  .week-table tr.wednesday td { background: #fffbeb; }
+  .week-table tr.wednesday td.day-col { background: #fef3c7; }
+  .week-table tr.weekend td { background: var(--weekend); color: var(--muted); font-style: italic; }
+  .block { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid; }
+  .block.school { background: #f8fafc; border-left-color: #94a3b8; }
+  .block.noschool { background: #fee2e2; border-left-color: #ef4444; }
+  .block.andy-act { background: var(--andy-bg); border-left-color: var(--andy); }
+  .block.ariel-act { background: var(--ariel-bg); border-left-color: var(--ariel); }
+  .block .time { font-weight: 800; font-size: 13px; white-space: nowrap; min-width: 92px; }
+  .block .what { font-weight: 700; font-size: 14px; }
+  .block .where { font-size: 12px; color: var(--muted); }
+  .block .where a { color: inherit; }
+  .block .contact { font-size: 12px; color: var(--muted); }
+  .block .note { font-size: 11px; color: #b45309; font-style: italic; }
+  .col-andy, .col-ariel { transition: opacity .2s; }
+  body[data-filter="andy"] .col-ariel { display: none; }
+  body[data-filter="ariel"] .col-andy { display: none; }
+  body[data-filter="andy"] .only-ariel, body[data-filter="ariel"] .only-andy { display: none; }
+  .addresses { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .addr { padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: white; font-size: 13px; }
+  .addr b { display: block; font-size: 14px; }
+  .addr.andy { border-left: 4px solid var(--andy); } .addr.ariel { border-left: 4px solid var(--ariel); }
+  .tip { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px 16px; font-size: 13px; margin-top: 16px; }
+
+  /* Feeds */
+  .feeds { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .feed { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: white; border-top: 5px solid var(--text); }
+  .feed.andy { border-top-color: var(--andy); } .feed.ariel { border-top-color: var(--ariel); }
+  .feed.younette { border-top-color: #7c3aed; } .feed.mamimo { border-top-color: #db2777; } .feed.diane { border-top-color: #0d9488; }
+  .feed h3 { font-size: 17px; margin-bottom: 4px; }
+  .feed p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .feed .btn { display: block; text-align: center; padding: 12px; border-radius: 10px; background: var(--text); color: white; font-weight: 700; text-decoration: none; font-size: 14px; }
+  .feed .copy { display: block; text-align: center; margin-top: 8px; font-size: 12px; color: var(--muted); background: #f1f5f9; border: none; width: 100%; padding: 8px; border-radius: 8px; cursor: pointer; }
+  .feed .count { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+  /* Modal */
+  .overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .overlay.open { display: flex; }
+  .modal { background: white; border-radius: 16px; max-width: 640px; width: 100%; max-height: 90vh; overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; }
+  .modal-head h3 { font-size: 20px; text-transform: capitalize; }
+  .modal-head button { border: none; background: #f1f5f9; width: 34px; height: 34px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+  .modal-body { padding: 20px 24px; display: grid; gap: 16px; }
+  .child-panel { border-radius: 12px; padding: 14px; border: 2px solid; }
+  .child-panel.andy { border-color: var(--andy); background: #fffdf5; }
+  .child-panel.ariel { border-color: var(--ariel); background: #f7faff; }
+  .child-panel h4 { font-size: 16px; margin-bottom: 8px; }
+  .child-panel.andy h4 { color: var(--andy); } .child-panel.ariel h4 { color: var(--ariel); }
+  .vac-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; }
+  .vac-badge.off { background: var(--commun-bg); color: var(--commun); }
+  .vac-badge.school { background: #e2e8f0; color: var(--text); }
+  .vac-badge.we { background: var(--weekend); color: var(--muted); }
+
+  footer { text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+  @media (max-width: 900px) { .calendar-grid { grid-template-columns: repeat(2, 1fr); } .stats { grid-template-columns: 1fr; } }
+
+  /* ===== Mobile-only elements ===== */
+  .m-only { display: none; }
+  .month-nav { display: none; }
+  .day-picker { display: none; }
+
+  @media (hover: none) { .day:not(.empty):hover { transform: none; box-shadow: none; } }
+
+  @media (max-width: 640px) {
+    body { padding: 12px; }
+    h1 { font-size: 22px; }
+    .subtitle { font-size: 12px; }
+    header { margin-bottom: 12px; padding-bottom: 12px; border-bottom-width: 2px; }
+    h2 { font-size: 17px; margin-bottom: 12px; }
+
+    /* Toolbar sticky, full width */
+    .toolbar { position: sticky; top: 0; z-index: 20; background: #fafafa; padding: 8px 0; margin-bottom: 10px; gap: 8px; }
+    .tabs, .filters { width: 100%; }
+    .tab, .chip { flex: 1; text-align: center; padding: 10px 6px; font-size: 13px; }
+
+    /* Cards */
+    .card-section { padding: 14px; border-radius: 12px; margin-bottom: 14px; }
+    .tip { font-size: 12px; padding: 10px 12px; }
+
+    /* Week: hide table, show day picker + cards */
+    .week-table { display: none; }
+    .day-picker { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .day-picker::-webkit-scrollbar { display: none; }
+    .day-picker button { flex: 0 0 auto; min-width: 58px; padding: 10px 8px; border-radius: 12px; border: 1px solid var(--border); background: white; font-weight: 700; font-size: 13px; color: var(--muted); }
+    .day-picker button small { display: block; font-size: 10px; font-weight: 500; }
+    .day-picker button.active { background: var(--text); color: white; border-color: var(--text); }
+    .day-picker button.wed { border-color: #fcd34d; background: #fffbeb; }
+    .day-picker button.wed.active { background: var(--text); }
+    .m-only { display: block; }
+    .m-child { border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 2px solid; }
+    .m-child.andy { border-color: var(--andy); background: #fffdf5; }
+    .m-child.ariel { border-color: var(--ariel); background: #f7faff; }
+    .m-child h4 { font-size: 16px; margin-bottom: 8px; }
+    .m-child.andy h4 { color: var(--andy); } .m-child.ariel h4 { color: var(--ariel); }
+    .m-child.care { border-color: #7c3aed; background: #faf5ff; }
+    .m-child.care h4 { color: #7c3aed; }
+    .block { padding: 10px; gap: 8px; flex-direction: column; }
+    .block .time { min-width: 0; font-size: 12px; color: var(--muted); }
+    .block .what { font-size: 15px; }
+    .block .where { font-size: 12px; line-height: 1.4; }
+
+    /* Care table -> cards */
+    .care-table, .care-table tbody, .care-table tr, .care-table td { display: block; width: 100%; }
+    .care-table thead { display: none; }
+    .care-table tr { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; padding: 10px 12px; background: white; }
+    .care-table tr.alert { border-color: #fca5a5; }
+    .care-table td { padding: 2px 0; border: none; background: transparent !important; }
+    .care-table td:first-child { font-size: 15px; }
+    .care-table td:nth-child(2) { margin: 4px 0; }
+    .care-table td:last-child { font-size: 12px; color: var(--muted); }
+    .people { grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
+    .person { padding: 10px 12px; }
+
+    /* Calendar: one month at a time */
+    .legend { gap: 6px; margin: 8px 0; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; padding-bottom: 4px; }
+    .legend::-webkit-scrollbar { display: none; }
+    .legend-item { flex: 0 0 auto; font-size: 11px; padding: 5px 10px; }
+    .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0 12px; }
+    .stat { padding: 10px 4px; border-radius: 10px; }
+    .stat .number { font-size: 22px; }
+    .stat .label { font-size: 9px; margin-top: 4px; letter-spacing: 0; }
+    body[data-filter="andy"] .stats, body[data-filter="ariel"] .stats { grid-template-columns: 1fr; }
+    .hint { font-size: 12px; margin-bottom: 8px; }
+    .month-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 6px; }
+    .month-nav button { border: none; background: #f1f5f9; width: 42px; height: 42px; border-radius: 10px; font-size: 20px; font-weight: 800; }
+    .month-nav select { flex: 1; border: none; background: transparent; font-weight: 800; font-size: 16px; text-align: center; text-align-last: center; appearance: none; -webkit-appearance: none; }
+    .month-nav .today-btn { width: auto; padding: 0 12px; font-size: 12px; font-weight: 700; }
+    .calendar-grid { grid-template-columns: 1fr; gap: 0; margin-bottom: 14px; }
+    .month { display: none; border-radius: 12px; }
+    .month.active { display: block; }
+    .month-header { display: none; }
+    .day-name { font-size: 11px; padding: 8px 0; }
+    .day { font-size: 15px; }
+    .day .badge { width: 16px; height: 16px; font-size: 9px; top: 3px; right: 3px; }
+    .day.absence::after { font-size: 10px; }
+    .day .dot i { width: 5px; height: 5px; }
+    .common-vacations { grid-template-columns: 1fr; gap: 10px; }
+
+    /* Modal -> bottom sheet */
+    .overlay { padding: 0; align-items: flex-end; }
+    .modal { border-radius: 20px 20px 0 0; max-height: 88vh; animation: slideUp .25s ease-out; }
+    .modal::before { content: ''; display: block; width: 40px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 10px auto 0; }
+    .modal-head { padding: 10px 18px 12px; }
+    .modal-head h3 { font-size: 17px; }
+    .modal-body { padding: 14px 16px 28px; gap: 12px; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    footer { font-size: 11px; }
+  }
+
+  @media print { body { padding: 8px; background: white; } .toolbar, .hint { display: none; } .view { display: block !important; } .month, .card-section { box-shadow: none; break-inside: avoid; } }
+</style>
+</head>
+<body data-filter="all">
+<div class="container">
+  <header>
+    <h1>📅 Planning Andy & Ariel 2026-2027</h1>
+    <p class="subtitle">Andy (Marianne Picard) · Ariel (École publique – Zone C)</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="tabs">
+      <button class="tab active" data-view="week">🗓️ Semaine type</button>
+      <button class="tab" data-view="calendar">📆 Calendrier annuel</button>
+      <button class="tab" data-view="subscribe">📲 S'abonner</button>
+    </div>
+    <div class="filters">
+      <button class="chip active" data-filter="all">👨‍👦‍👦 Les deux</button>
+      <button class="chip" data-filter="andy">🟠 Andy</button>
+      <button class="chip" data-filter="ariel">🔵 Ariel</button>
+    </div>
+  </div>
+
+  <!-- ================= WEEK VIEW ================= -->
+  <section class="view active" id="view-week">
+    <div class="card-section">
+      <h2>🗓️ Semaine type (hors vacances)</h2>
+      <div class="day-picker" id="day-picker"></div>
+      <div class="m-only" id="week-mobile"></div>
+      <table class="week-table">
+        <thead>
+          <tr>
+            <th class="day-col">Jour</th>
+            <th class="andy-col col-andy">🟠 Andy</th>
+            <th class="ariel-col col-ariel">🔵 Ariel</th>
+          </tr>
+        </thead>
+        <tbody id="week-body"></tbody>
+      </table>
+      <div class="tip only-both">💡 <b>Mercredi = journée chargée.</b> Andy sort à 13h35 → graphologie (rue de Varize) 14h20-15h → théâtre (rue du Général-Delestraint) 15h30. Ariel : gym à Saint-Cloud le matin, puis art plastique (rue Gustave-Zédé) à 15h45. Les deux activités de 15h30/15h45 sont toutes deux dans le 16ᵉ, à quelques minutes l'une de l'autre.</div>
+    </div>
+
+    <div class="card-section">
+      <h2>👵 Gardes</h2>
+      <div class="people" id="people"></div>
+      <table class="care-table">
+        <thead><tr><th>Mercredi</th><th>Garde</th><th>Contexte</th></tr></thead>
+        <tbody id="care-body"></tbody>
+      </table>
+      <div class="tip">ℹ️ Lundi & jeudi : Diane récupère les enfants à la sortie de l'école (seulement celui qui a classe pendant les vacances de l'autre). Le planning des grands-mères est complété au fil de l'année. Les mercredis « À définir » restent à attribuer (Mamimo, Younette ou Diane une fois validée).</div>
+    </div>
+
+    <div class="card-section">
+      <h2>📍 Adresses utiles</h2>
+      <div class="addresses" id="addresses"></div>
+    </div>
+  </section>
+
+  <!-- ================= CALENDAR VIEW ================= -->
+  <section class="view" id="view-calendar">
+    <div class="legend">
+      <div class="legend-item legend-andy only-andy-both">🟠 Andy en vacances</div>
+      <div class="legend-item legend-ariel only-ariel-both">🔵 Ariel en vacances</div>
+      <div class="legend-item legend-commun only-both">🟢 Vacances communes</div>
+      <div class="legend-item legend-school">⚪ École · ⬜ Week-end</div>
+      <div class="legend-item legend-school"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#7c3aed;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">Y</span> Younette · <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#db2777;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">M</span> Mamimo · ✈️ absence · <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#0d9488;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">D</span> Diane</div>
+    </div>
+    <div class="stats">
+      <div class="stat andy col-andy"><div class="number">~71</div><div class="label">Jours de vacances – Andy</div></div>
+      <div class="stat ariel col-ariel"><div class="number">~76</div><div class="label">Jours de vacances – Ariel</div></div>
+      <div class="stat commun only-both"><div class="number">~38</div><div class="label">Jours en commun</div></div>
+    </div>
+    <p class="hint">👆 Cliquez sur un jour pour voir le détail (école, horaires, activités)</p>
+    <div class="month-nav">
+      <button id="prev-month" aria-label="Mois précédent">‹</button>
+      <select id="month-select"></select>
+      <button class="today-btn" id="today-btn">Auj.</button>
+      <button id="next-month" aria-label="Mois suivant">›</button>
+    </div>
+    <div class="calendar-grid" id="calendar"></div>
+
+    <div class="card-section only-both">
+      <h2>🟢 Vacances communes (idéales pour les voyages en famille)</h2>
+      <div class="common-vacations">
+        <div class="common-card"><div class="title">🎄 Noël</div><div class="dates">Sam. 19 déc. 2026 → dim. 3 jan. 2027</div><span class="duration">16 jours</span></div>
+        <div class="common-card"><div class="title">❄️ Hiver / Février</div><div class="dates">Sam. 13 fév. → dim. 21 fév. 2027</div><span class="duration">9 jours</span></div>
+        <div class="common-card"><div class="title">🌸 Printemps / Pessah</div><div class="dates">Sam. 17 → dim. 18 avril 2027</div><span class="duration">2 jours</span></div>
+        <div class="common-card"><div class="title">🌤️ Ascension</div><div class="dates">Jeu. 6 → dim. 9 mai 2027 (dans Pessah pour Andy)</div><span class="duration">4 jours</span></div>
+        <div class="common-card"><div class="title">☀️ Été</div><div class="dates">À partir du mer. 7 juillet 2027 (Andy finit le 6)</div><span class="duration">Été commun</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SUBSCRIBE VIEW ================= -->
+  <section class="view" id="view-subscribe">
+    <div class="card-section">
+      <h2>📲 Abonnez-vous depuis votre iPhone</h2>
+      <p style="font-size:14px;margin-bottom:14px">Chaque personne a son propre calendrier, qui se met à jour <b>automatiquement</b> sur le téléphone dès que le planning change ici. Choisissez le vôtre et touchez <b>« Ajouter à mon iPhone »</b>.</p>
+      <div class="feeds" id="feeds"></div>
+      <div class="tip" style="margin-top:18px">
+        <b>Comment ça marche ?</b><br>
+        1. Chaque personne prend <b>son</b> calendrier (Younette ≠ Mamimo ≠ Diane : le contenu est différent).<br>2. Touchez le bouton de votre calendrier → l'iPhone propose « S'abonner au calendrier » → <b>S'abonner</b> → <b>Terminé</b>.<br>
+        3. Le calendrier apparaît dans l'app Calendrier, section « Abonnements ».<br>
+        4. Pour choisir la fréquence de mise à jour : <i>Réglages → Apps → Calendrier → Comptes → Calendriers abonnés → [le calendrier] → Mettre à jour</i> (toutes les heures conseillé).<br>
+        5. Sur Mac / Google Agenda / Outlook : utilisez le lien « copier l'adresse » et ajoutez-le comme calendrier « par URL ».
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Sources : Calendrier Marianne Picard 2026-2027 · Arrêté du 22 octobre 2025 (Zone C). Certaines dates peuvent être modifiées par l'école. · Calendriers iPhone : onglet « S'abonner ».</p>
+  </footer>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modal-title"></h3><button id="modal-close" aria-label="Fermer">✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ============ DONNÉES (injectées par build.js depuis data/planning.json) ============
+const DATA = /*__DATA__*/null;
+const FEEDS = /*__FEEDS__*/null;
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+const maps = a => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}`;
+const children = DATA.children, caregivers = DATA.caregivers, careSchedule = DATA.careSchedule, absences = DATA.absences, recurringCare = DATA.recurringCare || [];
+// Qui récupère à la sortie d'école ce jour-là ? -> { who, kids[] } ou null
+function pickupOn(date) {
+  const dow = date.getDay();
+  for (const r of recurringCare) {
+    if (!r.days.includes(dow)) continue;
+    const kids = ['andy','ariel'].filter(k => { const v = vacOn(date, k); return !(v && !v.partial) && children[k].schoolEnd[dow]; });
+    if (kids.length) return { who: r.who, kids, label: r.label };
+  }
+  return null;
+}
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const frShort = s => s.split('-').reverse().join('/');
+function absencesOn(date) {
+  const t = date.getTime();
+  return absences.filter(a => t >= new Date(a.start+'T00:00:00') && t <= new Date(a.end+'T23:59:59'));
+}
+
+const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const dayFull = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const dayNames = ['L','M','M','J','V','S','D'];
+
+let filter = 'all';
+const show = c => filter === 'all' || filter === c;
+
+function vacOn(date, child) {
+  const t = date.getTime();
+  for (const r of children[child].vacations) {
+    if (t >= new Date(r.start+'T00:00:00') && t <= new Date(r.end+'T23:59:59')) return r;
+  }
+  return null;
+}
+
+// ============ SEMAINE TYPE ============
+function blockHTML(b, cls) {
+  return `<div class="block ${cls}">
+    <div class="time">${b.start}${b.end ? ' – ' + b.end : ''}</div>
+    <div><div class="what">${b.name}</div>
+      ${b.address ? `<div class="where">📍 <a href="${maps(b.address)}" target="_blank">${b.address}</a></div>` : ''}
+      ${b.contact ? `<div class="contact">📞 ${b.contact}</div>` : ''}
+      ${b.note ? `<div class="note">${b.note}</div>` : ''}
+    </div></div>`;
+}
+
+function childDayHTML(child, dow) {
+  const c = children[child];
+  let html = '';
+  const end = c.schoolEnd[dow];
+  if (dow >= 1 && dow <= 5) {
+    html += end
+      ? `<div class="block school"><div class="time">→ ${end}</div><div><div class="what">🏫 École (${c.school})</div><div class="where">Sortie à ${end}</div></div></div>`
+      : `<div class="block noschool"><div class="time">—</div><div><div class="what">🚫 Pas d'école</div></div></div>`;
+    const r = recurringCare.find(r => r.days.includes(dow));
+    if (end && r) { const cg = caregivers[r.who]; html += `<div class="block pickup" style="background:${cg.bg};border-left-color:${cg.color}"><div class="time">${end}</div><div><div class="what">${cg.emoji} ${r.label} par ${cg.name.split(' ')[0]}</div></div></div>`; }
+  }
+  c.activities.filter(a => a.dow === dow).sort((a,b) => a.start.localeCompare(b.start))
+    .forEach(a => html += blockHTML(a, child + '-act'));
+  return html || '<span style="color:var(--muted)">Libre</span>';
+}
+
+function buildWeek() {
+  const tb = document.getElementById('week-body');
+  tb.innerHTML = '';
+  for (let dow = 1; dow <= 7; dow++) {
+    const d = dow % 7;
+    const tr = document.createElement('tr');
+    if (dow === 3) tr.className = 'wednesday';
+    if (dow >= 6) tr.className = 'weekend';
+    tr.innerHTML = `<td class="day-col">${dayFull[d]}${dow===3?'<small>journée chargée</small>':''}</td>
+      <td class="col-andy">${dow>=6 ? 'Week-end 🎉' : childDayHTML('andy', dow)}</td>
+      <td class="col-ariel">${dow>=6 ? 'Week-end 🎉' : childDayHTML('ariel', dow)}</td>`;
+    tb.appendChild(tr);
+  }
+  const ad = document.getElementById('addresses');
+  const seen = new Set();
+  for (const k of ['andy','ariel']) for (const a of children[k].activities) {
+    if (seen.has(a.address)) continue; seen.add(a.address);
+    ad.innerHTML += `<div class="addr ${k} col-${k}"><b>${a.name} — ${children[k].name}</b>📍 <a href="${maps(a.address)}" target="_blank">${a.address}</a>${a.contact ? '<br>📞 ' + a.contact : ''}</div>`;
+  }
+}
+
+// ============ SEMAINE MOBILE ============
+let mobileDay = (TODAY.getDay() >= 1 && TODAY.getDay() <= 5) ? TODAY.getDay() : 1;
+const dayShort = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+function buildWeekMobile() {
+  const pk = document.getElementById('day-picker');
+  pk.innerHTML = '';
+  for (let dow = 1; dow <= 7; dow++) {
+    const d = dow % 7;
+    const b = document.createElement('button');
+    b.className = (dow === mobileDay ? 'active ' : '') + (dow === 3 ? 'wed' : '');
+    b.innerHTML = `${dayShort[d]}${dow===3?'<small>chargé</small>':''}`;
+    b.onclick = () => { mobileDay = dow; buildWeekMobile(); };
+    pk.appendChild(b);
+  }
+  const box = document.getElementById('week-mobile');
+  const dow = mobileDay;
+  if (dow >= 6) { box.innerHTML = '<div class="m-child" style="border-color:var(--border);background:var(--weekend);text-align:center">Week-end 🎉</div>'; return; }
+  let html = '';
+  for (const k of ['andy','ariel']) {
+    if (!show(k)) continue;
+    html += `<div class="m-child ${k}"><h4>${k==='andy'?'🟠':'🔵'} ${children[k].name}</h4>${childDayHTML(k, dow)}</div>`;
+  }
+  if (dow === 3) html += `<div class="m-child care"><h4>👵 Garde du mercredi</h4><p style="font-size:13px">Alternance Mamie Younette / Mamimo — voir la liste ci-dessous pour les dates.</p></div>`;
+  box.innerHTML = html;
+}
+
+// ============ GARDES ============
+function buildCare() {
+  const pp = document.getElementById('people');
+  for (const k in caregivers) {
+    const c = caregivers[k];
+    pp.innerHTML += `<div class="person" style="background:${c.bg};border-color:${c.color}"><b>${c.emoji} ${c.name}</b>${recurringCare.filter(r=>r.who===k).map(r=>r.label+' : '+r.days.map(d=>dayFull[d].toLowerCase()).join(' & ')+' (uniquement l\'enfant qui a école)').join('<br>') || 'Garde alternée du mercredi'}${absences.filter(a=>a.who===k).map(a=>'<br>✈️ Absent(e) du '+frShort(a.start)+' au '+frShort(a.end)).join('')}</div>`;
+  }
+  const tb = document.getElementById('care-body');
+  let d = new Date(2026, 8, 9); // premier mercredi de l'année scolaire
+  const end = new Date(2027, 6, 7);
+  while (d <= end) {
+    const key = iso(d);
+    const care = careSchedule[key];
+    const a = vacOn(d, 'andy'), r = vacOn(d, 'ariel');
+    const ctx = [];
+    if (a && r) ctx.push('🟢 Les deux en vacances (' + a.name + ' / ' + r.name + ')');
+    else { if (a) ctx.push('🟠 Andy en vacances (' + a.name + ')'); if (r) ctx.push('🔵 Ariel en vacances (' + r.name + ')'); }
+    const abs = absencesOn(d);
+    abs.forEach(x => ctx.push('✈️ ' + x.name));
+    let tag;
+    if (care) { const c = caregivers[care]; tag = `<span class="care-tag" style="background:${c.bg};color:${c.color}">${c.emoji} ${c.name}</span>`; }
+    else if (a && r) tag = '<span class="care-tag none">— (vacances)</span>';
+    else tag = '<span class="care-tag todo">À définir</span>';
+    const tr = document.createElement('tr');
+    if (d < TODAY) tr.className = 'past';
+    if (!care && !(a && r) && abs.length) tr.className += ' alert';
+    tr.innerHTML = `<td><b>${d.getDate()} ${monthNames[d.getMonth()].toLowerCase()}</b> ${d.getFullYear()}</td><td>${tag}</td><td>${ctx.join('<br>') || '<span style="color:var(--muted)">Semaine normale</span>'}</td>`;
+    tb.appendChild(tr);
+    d = new Date(d.getTime() + 7*86400000);
+  }
+}
+
+// ============ CALENDRIER ============
+function buildCalendar() {
+  const container = document.getElementById('calendar');
+  container.innerHTML = '';
+  for (const [y, m] of MONTHS) {
+    const monthDiv = document.createElement('div'); monthDiv.className = 'month';
+    monthDiv.innerHTML = `<div class="month-header">${monthNames[m]} ${y}</div>`;
+    const grid = document.createElement('div'); grid.className = 'month-grid';
+    dayNames.forEach(dn => grid.innerHTML += `<div class="day-name">${dn}</div>`);
+    let startDay = (new Date(y, m, 1).getDay() + 6) % 7;
+    for (let i = 0; i < startDay; i++) grid.innerHTML += '<div class="day empty"></div>';
+    const last = new Date(y, m + 1, 0).getDate();
+    for (let d = 1; d <= last; d++) {
+      const date = new Date(y, m, d);
+      const dow = date.getDay();
+      const cell = document.createElement('div');
+      cell.className = 'day'; cell.textContent = d;
+      const a = show('andy') ? vacOn(date, 'andy') : null;
+      const r = show('ariel') ? vacOn(date, 'ariel') : null;
+      if (a && r) cell.classList.add('commun');
+      else if (a && a.partial) cell.classList.add('partial');
+      else if (a) cell.classList.add('andy');
+      else if (r) cell.classList.add('ariel');
+      else if (dow === 0 || dow === 6) cell.classList.add('weekend');
+      // activity dots
+      if (dow >= 1 && dow <= 5) {
+        const dots = [];
+        if (show('andy') && !a && children.andy.activities.some(x => x.dow === dow)) dots.push('<i class="a"></i>');
+        if (show('ariel') && !r && children.ariel.activities.some(x => x.dow === dow)) dots.push('<i class="r"></i>');
+        if (dots.length) cell.innerHTML += `<span class="dot">${dots.join('')}</span>`;
+      }
+      // garde du mercredi
+      const care = careSchedule[iso(date)];
+      if (care) { const cg = caregivers[care]; cell.innerHTML += `<span class="badge" style="background:${cg.color}" title="Garde : ${cg.name}">${cg.short}</span>`; }
+      const pk = !care && pickupOn(date);
+      if (pk) { const cg = caregivers[pk.who]; cell.innerHTML += `<span class="badge" style="background:${cg.color};opacity:.75" title="${cg.name} récupère ${pk.kids.map(x=>children[x].name).join(' & ')}">${cg.short}</span>`; }
+      // absences adultes
+      const abs = absencesOn(date);
+      if (abs.length) { cell.classList.add('absence'); cell.title = abs.map(x => x.name).join(', '); }
+      if (date.getTime() === TODAY.getTime()) cell.classList.add('today');
+      cell.addEventListener('click', () => openDay(date));
+      grid.appendChild(cell);
+    }
+    monthDiv.appendChild(grid); container.appendChild(monthDiv);
+  }
+  applyActiveMonth();
+}
+let activeMonth = 0; // index dans months (0 = sept 2026)
+const MONTHS = [[2026,8],[2026,9],[2026,10],[2026,11],[2027,0],[2027,1],[2027,2],[2027,3],[2027,4],[2027,5],[2027,6],[2027,7]];
+(function initMonthNav() {
+  const sel = document.getElementById('month-select');
+  MONTHS.forEach(([y,m],i) => sel.innerHTML += `<option value="${i}">${monthNames[m]} ${y}</option>`);
+  const ti = MONTHS.findIndex(([y,m]) => y === TODAY.getFullYear() && m === TODAY.getMonth());
+  activeMonth = ti >= 0 ? ti : 0;
+  sel.value = activeMonth;
+  sel.onchange = () => { activeMonth = +sel.value; applyActiveMonth(); };
+  document.getElementById('prev-month').onclick = () => { activeMonth = Math.max(0, activeMonth - 1); sel.value = activeMonth; applyActiveMonth(); };
+  document.getElementById('next-month').onclick = () => { activeMonth = Math.min(MONTHS.length - 1, activeMonth + 1); sel.value = activeMonth; applyActiveMonth(); };
+  document.getElementById('today-btn').onclick = () => { activeMonth = ti >= 0 ? ti : 0; sel.value = activeMonth; applyActiveMonth(); };
+})();
+function applyActiveMonth() {
+  document.querySelectorAll('#calendar .month').forEach((el, i) => el.classList.toggle('active', i === activeMonth));
+}
+
+// ============ MODAL ============
+function openDay(date) {
+  const dow = date.getDay();
+  document.getElementById('modal-title').textContent = `${dayFull[dow]} ${date.getDate()} ${monthNames[date.getMonth()].toLowerCase()} ${date.getFullYear()}`;
+  let body = '';
+  for (const k of ['andy','ariel']) {
+    if (!show(k)) continue;
+    const c = children[k];
+    const vac = vacOn(date, k);
+    let inner = `<h4>${k==='andy'?'🟠':'🔵'} ${c.name}</h4>`;
+    if (dow === 0 || dow === 6) inner += `<span class="vac-badge we">Week-end</span>`;
+    else if (vac && !vac.partial) inner += `<span class="vac-badge off">🏖️ Vacances – ${vac.name}</span>`;
+    else if (vac && vac.partial) inner += `<span class="vac-badge off">🎭 ${vac.name}</span><br><br>` + childDayHTML(k, dow);
+    else inner += childDayHTML(k, dow);
+    if (vac && !vac.partial && dow >= 1 && dow <= 5 && c.activities.some(x => x.dow === dow))
+      inner += `<p style="font-size:12px;color:#b45309;margin-top:8px">⚠️ Activités habituelles du ${dayFull[dow].toLowerCase()} probablement suspendues pendant les vacances – à vérifier.</p>`;
+    body += `<div class="child-panel ${k}">${inner}</div>`;
+  }
+  // panneau garde / absences
+  const care = careSchedule[iso(date)];
+  const abs = absencesOn(date);
+  const pk = pickupOn(date);
+  if (care || abs.length || dow === 3 || pk) {
+    let inner = '<h4>👵 Garde</h4>';
+    if (pk) { const cg = caregivers[pk.who]; inner += `<span class="care-tag" style="background:${cg.bg};color:${cg.color}">${cg.emoji} ${cg.name.split(' ')[0]} récupère ${pk.kids.map(x=>children[x].name+' ('+children[x].schoolEnd[dow]+')').join(' & ')}</span>`;
+      const off = ['andy','ariel'].filter(x => !pk.kids.includes(x)); if (off.length) inner += `<p style="font-size:12px;color:var(--muted);margin-top:6px">${off.map(x=>children[x].name).join(', ')} en vacances — pas à récupérer</p>`; }
+    if (care) { const c = caregivers[care]; inner += `<span class="care-tag" style="background:${c.bg};color:${c.color}">${c.emoji} ${c.name}</span>`; }
+    else if (dow === 3 && !(vacOn(date,'andy') && vacOn(date,'ariel'))) inner += '<span class="care-tag todo">Garde du mercredi à définir</span>';
+    abs.forEach(x => inner += `<p style="margin-top:8px;font-size:13px">✈️ ${x.name} (${x.start.split('-').reverse().join('/')} → ${x.end.split('-').reverse().join('/')})</p>`);
+    body += `<div class="child-panel care">${inner}</div>`;
+  }
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('overlay').classList.add('open');
+}
+const closeModal = () => document.getElementById('overlay').classList.remove('open');
+document.getElementById('modal-close').onclick = closeModal;
+document.getElementById('overlay').onclick = e => { if (e.target.id === 'overlay') closeModal(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ============ ABONNEMENTS ============
+(function buildFeeds() {
+  const box = document.getElementById('feeds');
+  const labels = { parents: '👨‍👩‍👦‍👦', andy: '🟠', ariel: '🔵', younette: '👵', mamimo: '👵', diane: '🧑‍🍼' };
+  for (const f of FEEDS) {
+    const div = document.createElement('div');
+    div.className = 'feed ' + f.id;
+    div.innerHTML = `<h3>${labels[f.id] || '📅'} ${f.name}</h3><p>${f.desc}</p>
+      <a class="btn" href="${f.webcal}">📲 Ajouter à mon iPhone</a>
+      <button class="copy" data-url="${f.https}">🔗 Copier l'adresse (Mac / Google / Outlook)</button>
+      <div class="count">${f.count} événements</div>`;
+    div.querySelector('.copy').onclick = e => {
+      navigator.clipboard.writeText(e.target.dataset.url).then(() => { e.target.textContent = '✅ Adresse copiée'; setTimeout(() => e.target.textContent = "🔗 Copier l'adresse (Mac / Google / Outlook)", 2000); });
+    };
+    box.appendChild(div);
+  }
+})();
+
+// ============ TABS & FILTRES ============
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('view-' + t.dataset.view).classList.add('active');
+});
+document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+  document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+  c.classList.add('active');
+  filter = c.dataset.filter;
+  document.body.dataset.filter = filter;
+  document.querySelectorAll('.only-both').forEach(el => el.style.display = filter === 'all' ? '' : 'none');
+  document.querySelectorAll('.only-andy-both').forEach(el => el.style.display = show('andy') ? '' : 'none');
+  document.querySelectorAll('.only-ariel-both').forEach(el => el.style.display = show('ariel') ? '' : 'none');
+  buildCalendar();
+  buildWeekMobile();
+});
+
+buildWeek();
+buildWeekMobile();
+buildCare();
+buildCalendar();
+</script>
+</body>
+</html>
