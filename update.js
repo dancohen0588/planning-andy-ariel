@@ -6,6 +6,7 @@
  * Exemples :
  *   node update.js garde 2026-10-07 mamimo
  *   node update.js garde 2026-10-14 diane
+ *   node update.js garde 2026-09-11 younette      # garde exceptionnelle un autre jour
  *   node update.js garde-supprimer 2026-10-14
  *   node update.js absence younette 2026-12-20 2026-12-27 "Younette à Marrakech"
  *   node update.js absence-supprimer younette 2026-12-20
@@ -30,7 +31,7 @@ switch (cmd) {
   case 'garde': {
     const [date, k] = a;
     if (!isDate(date)) fail('date attendue AAAA-MM-JJ');
-    if (dow(date) !== 3) fail(`${date} n'est pas un mercredi`);
+    if (dow(date) !== 3) console.warn(`⚠️  ${date} n'est pas un mercredi : garde exceptionnelle`);
     who(k);
     D.careSchedule[date] = k;
     D.careSchedule = Object.fromEntries(Object.entries(D.careSchedule).sort());

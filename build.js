@@ -151,21 +151,27 @@ for (const rule of (DATA.recurringCare || [])) {
   }
 }
 
-// Mercredis de garde
-for (let d = new Date(START); d <= END; d = addDays(d, 1)) {
-  if (d.getDay() !== 3) continue;
+// Gardes : mercredis (alternance) + gardes exceptionnelles n'importe quel jour
+const careDates = new Set(Object.keys(DATA.careSchedule));
+for (let d = new Date(START); d <= END; d = addDays(d, 1)) if (d.getDay() === 3) careDates.add(iso(d));
+for (const key of [...careDates].sort()) {
+  const d = parse(key), dow = d.getDay();
+  const care = DATA.careSchedule[key];
   const bothOff = vacOn(d, 'andy') && vacOn(d, 'ariel') && !vacOn(d, 'andy').partial;
-  if (bothOff) continue;
-  const care = DATA.careSchedule[iso(d)];
+  if (bothOff && !care) continue;
+  // enfants à garder : le mercredi les deux ; sinon ceux qui n'ont pas école ce jour-là
+  const home = ['andy', 'ariel'].filter(k => (vacOn(d, k) && !vacOn(d, k).partial) || !DATA.children[k].schoolEnd[dow]);
+  const kids = dow === 3 || !home.length ? ['andy', 'ariel'] : home;
+  const names = kids.map(k => DATA.children[k].name).join(' & ');
   const program = dayProgram(d, ['andy', 'ariel']);
   const abs = absencesOn(d).map(a => `✈️ ${a.name}`).join('\n');
   if (care) {
     const cg = DATA.caregivers[care];
-    ev.care[care].push({ uid: `care-${iso(d)}`, start: d, startHM: '1100', endHM: '1700', alarm: 12 * 60,
-      summary: `${cg.emoji} Garde Andy & Ariel – ${cg.name}`,
+    ev.care[care].push({ uid: `care-${key}`, start: d, startHM: dow === 3 ? '1100' : '0900', endHM: dow === 3 ? '1700' : '1800', alarm: 12 * 60, kids,
+      summary: `${cg.emoji} Garde ${names} – ${cg.name}${dow !== 3 ? ' (journée sans école)' : ''}`,
       description: `Programme du ${frDate(d)} :\n\n${program}${abs ? '\n\n' + abs : ''}\n\nMis à jour depuis ${SITE}` });
-  } else {
-    ev.careTodo.push({ uid: `care-todo-${iso(d)}`, allDay: true, start: d, end: d,
+  } else if (dow === 3) {
+    ev.careTodo.push({ uid: `care-todo-${key}`, allDay: true, start: d, end: d,
       summary: `⚠️ Garde du mercredi à définir`,
       description: `Personne n'est encore prévu pour ce mercredi.\n\n${program}${abs ? '\n\n' + abs : ''}` });
   }
@@ -182,8 +188,8 @@ const allCare = Object.values(ev.care).flat();
 const feeds = {
   parents: { name: 'Andy & Ariel – Parents', desc: 'Vacances, activités, gardes du mercredi et absences',
     events: [...ev.vac.andy, ...ev.vac.ariel, ...ev.act.andy, ...ev.act.ariel, ...allCare, ...ev.pickup, ...ev.careTodo, ...ev.absences] },
-  andy: { name: 'Andy', desc: 'Vacances et activités d\'Andy', events: [...ev.vac.andy, ...ev.act.andy, ...allCare, ...ev.pickup.filter(e => e.kids.includes('andy'))] },
-  ariel: { name: 'Ariel', desc: 'Vacances et activités d\'Ariel', events: [...ev.vac.ariel, ...ev.act.ariel, ...allCare, ...ev.pickup.filter(e => e.kids.includes('ariel'))] }
+  andy: { name: 'Andy', desc: 'Vacances et activités d\'Andy', events: [...ev.vac.andy, ...ev.act.andy, ...allCare.filter(e => e.kids.includes('andy')), ...ev.pickup.filter(e => e.kids.includes('andy'))] },
+  ariel: { name: 'Ariel', desc: 'Vacances et activités d\'Ariel', events: [...ev.vac.ariel, ...ev.act.ariel, ...allCare.filter(e => e.kids.includes('ariel')), ...ev.pickup.filter(e => e.kids.includes('ariel'))] }
 };
 for (const k in DATA.caregivers) {
   const cg = DATA.caregivers[k];
