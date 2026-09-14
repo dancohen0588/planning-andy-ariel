@@ -3,15 +3,25 @@
  * build.js — génère dist/index.html + dist/feeds/*.ics à partir de data/planning.json
  * Usage : node build.js
  * Aucune dépendance externe.
+ * Variables d'environnement :
+ *   SITE_URL    — URL publique du site (sinon DATA.site)
+ *   FEED_SECRET — secret servant à rendre les noms de flux .ics non devinables (stable d'un build à l'autre)
  */
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const DATA = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/planning.json'), 'utf8'));
 const SITE = (process.env.SITE_URL || process.env.URL || DATA.site).replace(/\/$/, '');
 const OUT = path.join(__dirname, 'dist');
 const FEEDS = path.join(OUT, 'feeds');
 fs.mkdirSync(FEEDS, { recursive: true });
+
+const FEED_SECRET = process.env.FEED_SECRET;
+if (!FEED_SECRET) console.warn('⚠️  FEED_SECRET non défini : les noms de flux .ics seront devinables');
+const feedFile = id => FEED_SECRET
+  ? `${id}-${crypto.createHash('sha256').update(FEED_SECRET + id).digest('hex').slice(0, 12)}.ics`
+  : `${id}.ics`;
 
 // ---------------------------------------------------------------- utils
 const pad = n => String(n).padStart(2, '0');
@@ -200,10 +210,11 @@ for (const k in DATA.caregivers) {
 const feedList = [];
 for (const id in feeds) {
   const f = feeds[id];
-  fs.writeFileSync(path.join(FEEDS, `${id}.ics`), calendar(f.name, f.desc, f.events));
+  const file = feedFile(id);
+  fs.writeFileSync(path.join(FEEDS, file), calendar(f.name, f.desc, f.events));
   feedList.push({ id, name: f.name, desc: f.desc, count: f.events.length,
-    https: `${SITE}/feeds/${id}.ics`, webcal: `${SITE.replace(/^https?:\/\//, 'webcal://')}/feeds/${id}.ics` });
-  console.log(`✓ feeds/${id}.ics  (${f.events.length} événements)`);
+    https: `${SITE}/feeds/${file}`, webcal: `${SITE.replace(/^https?:\/\//, 'webcal://')}/feeds/${file}` });
+  console.log(`✓ feeds/${file}  (${f.events.length} événements)`);
 }
 
 // ---------------------------------------------------------------- HTML
