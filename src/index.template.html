@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>Planning Andy & Ariel 2026-2027</title>
 <style>
   :root {
@@ -126,12 +127,23 @@
   .feeds { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
   .feed { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: white; border-top: 5px solid var(--text); }
   .feed.andy { border-top-color: var(--andy); } .feed.ariel { border-top-color: var(--ariel); }
-  .feed.younette { border-top-color: #7c3aed; } .feed.mamimo { border-top-color: #db2777; } .feed.diane { border-top-color: #0d9488; }
+  .feed.younette { border-top-color: #7c3aed; } .feed.mamimo { border-top-color: #db2777; }
   .feed h3 { font-size: 17px; margin-bottom: 4px; }
   .feed p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
   .feed .btn { display: block; text-align: center; padding: 12px; border-radius: 10px; background: var(--text); color: white; font-weight: 700; text-decoration: none; font-size: 14px; }
   .feed .copy { display: block; text-align: center; margin-top: 8px; font-size: 12px; color: var(--muted); background: #f1f5f9; border: none; width: 100%; padding: 8px; border-radius: 8px; cursor: pointer; }
   .feed .count { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+  /* Flux secondaires (par enfant) : repliés et plus discrets */
+  .feeds-more { margin-top: 20px; border-top: 1px dashed var(--border); padding-top: 12px; }
+  .feeds-more summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); list-style: none; }
+  .feeds-more summary::-webkit-details-marker { display: none; }
+  .feeds-more summary::before { content: '▸ '; }
+  .feeds-more[open] summary::before { content: '▾ '; }
+  .feeds-small { margin-top: 12px; }
+  .feeds-small .feed { padding: 12px 14px; border-top-width: 3px; background: #fcfcfd; }
+  .feeds-small .feed h3 { font-size: 15px; }
+  .feeds-small .feed p { font-size: 12px; margin-bottom: 8px; }
+  .feeds-small .feed .btn { padding: 9px; font-size: 13px; background: #475569; }
   /* Modal */
   .overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
   .overlay.open { display: flex; }
@@ -295,7 +307,7 @@
         <thead><tr><th>Mercredi</th><th>Garde</th><th>Contexte</th></tr></thead>
         <tbody id="care-body"></tbody>
       </table>
-      <div class="tip">ℹ️ Lundi & jeudi : Diane récupère les enfants à la sortie de l'école (seulement celui qui a classe pendant les vacances de l'autre). Le planning des grands-mères est complété au fil de l'année. Les mercredis « À définir » restent à attribuer (Mamimo, Younette ou Diane une fois validée).</div>
+      <div class="tip">ℹ️ Le planning des grands-mères est complété au fil de l'année. Les mercredis « À définir » restent à attribuer (Mamimo ou Mamie Younette). Les sorties d'école ponctuelles assurées par une grand-mère apparaissent dans le calendrier annuel (pastille sur le jour) et dans son flux.</div>
     </div>
 
     <div class="card-section">
@@ -311,7 +323,7 @@
       <div class="legend-item legend-ariel only-ariel-both">🔵 Ariel en vacances</div>
       <div class="legend-item legend-commun only-both">🟢 Vacances communes</div>
       <div class="legend-item legend-school">⚪ École · ⬜ Week-end</div>
-      <div class="legend-item legend-school"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#7c3aed;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">Y</span> Younette · <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#db2777;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">M</span> Mamimo · ✈️ absence · <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#0d9488;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">D</span> Diane</div>
+      <div class="legend-item legend-school"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#7c3aed;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">Y</span> Younette · <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#db2777;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">M</span> Mamimo · ✈️ absence</div>
     </div>
     <div class="stats">
       <div class="stat andy col-andy"><div class="number">~71</div><div class="label">Jours de vacances – Andy</div></div>
@@ -345,9 +357,13 @@
       <h2>📲 Abonnez-vous depuis votre iPhone</h2>
       <p style="font-size:14px;margin-bottom:14px">Chaque personne a son propre calendrier, qui se met à jour <b>automatiquement</b> sur le téléphone dès que le planning change ici. Choisissez le vôtre et touchez <b>« Ajouter à mon iPhone »</b>.</p>
       <div class="feeds" id="feeds"></div>
+      <details class="feeds-more">
+        <summary>Calendriers par enfant (optionnel — pour ne suivre qu'Andy ou qu'Ariel)</summary>
+        <div class="feeds feeds-small" id="feeds-secondary"></div>
+      </details>
       <div class="tip" style="margin-top:18px">
         <b>Comment ça marche ?</b><br>
-        1. Chaque personne prend <b>son</b> calendrier (Younette ≠ Mamimo ≠ Diane : le contenu est différent).<br>2. Touchez le bouton de votre calendrier → l'iPhone propose « S'abonner au calendrier » → <b>S'abonner</b> → <b>Terminé</b>.<br>
+        1. Chaque personne prend <b>son</b> calendrier (Younette ≠ Mamimo : le contenu est différent).<br>2. Touchez le bouton de votre calendrier → l'iPhone propose « S'abonner au calendrier » → <b>S'abonner</b> → <b>Terminé</b>.<br>
         3. Le calendrier apparaît dans l'app Calendrier, section « Abonnements ».<br>
         4. Pour choisir la fréquence de mise à jour : <i>Réglages → Apps → Calendrier → Comptes → Calendriers abonnés → [le calendrier] → Mettre à jour</i> (toutes les heures conseillé).<br>
         5. Sur Mac / Google Agenda / Outlook : utilisez le lien « copier l'adresse » et ajoutez-le comme calendrier « par URL ».
@@ -374,16 +390,16 @@ const DATA = /*__DATA__*/null;
 const FEEDS = /*__FEEDS__*/null;
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
 const maps = a => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}`;
-const children = DATA.children, caregivers = DATA.caregivers, careSchedule = DATA.careSchedule, absences = DATA.absences, recurringCare = DATA.recurringCare || [];
+const children = DATA.children, caregivers = DATA.caregivers, careSchedule = DATA.careSchedule, absences = DATA.absences, recurringCare = DATA.recurringCare || [], pickups = DATA.pickups || {};
 // Qui récupère à la sortie d'école ce jour-là ? -> { who, kids[] } ou null
+// Une sortie ponctuelle (pickups[date]) prime sur la règle récurrente du jour de semaine.
 function pickupOn(date) {
   const dow = date.getDay();
-  for (const r of recurringCare) {
-    if (!r.days.includes(dow)) continue;
-    const kids = ['andy','ariel'].filter(k => { const v = vacOn(date, k); return !(v && !v.partial) && children[k].schoolEnd[dow]; });
-    if (kids.length) return { who: r.who, kids, label: r.label };
-  }
-  return null;
+  const rule = recurringCare.find(r => r.days.includes(dow));
+  const who = pickups[iso(date)] || (rule && rule.who);
+  if (!who || !caregivers[who]) return null;
+  const kids = ['andy','ariel'].filter(k => { const v = vacOn(date, k); return !(v && !v.partial) && children[k].schoolEnd[dow]; });
+  return kids.length ? { who, kids, label: (rule && rule.label) || "Sortie d'école" } : null;
 }
 const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const frShort = s => s.split('-').reverse().join('/');
@@ -427,7 +443,7 @@ function childDayHTML(child, dow) {
       ? `<div class="block school"><div class="time">→ ${end}</div><div><div class="what">🏫 École (${c.school})</div><div class="where">Sortie à ${end}</div></div></div>`
       : `<div class="block noschool"><div class="time">—</div><div><div class="what">🚫 Pas d'école</div></div></div>`;
     const r = recurringCare.find(r => r.days.includes(dow));
-    if (end && r) { const cg = caregivers[r.who]; html += `<div class="block pickup" style="background:${cg.bg};border-left-color:${cg.color}"><div class="time">${end}</div><div><div class="what">${cg.emoji} ${r.label} par ${cg.name.split(' ')[0]}</div></div></div>`; }
+    if (end && r && caregivers[r.who]) { const cg = caregivers[r.who]; html += `<div class="block pickup" style="background:${cg.bg};border-left-color:${cg.color}"><div class="time">${end}</div><div><div class="what">${cg.emoji} ${r.label} par ${cg.name.split(' ')[0]}</div></div></div>`; }
   }
   c.activities.filter(a => a.dow === dow).sort((a,b) => a.start.localeCompare(b.start))
     .forEach(a => html += blockHTML(a, child + '-act'));
@@ -618,9 +634,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 // ============ ABONNEMENTS ============
 (function buildFeeds() {
-  const box = document.getElementById('feeds');
-  const labels = { parents: '👨‍👩‍👦‍👦', andy: '🟠', ariel: '🔵', younette: '👵', mamimo: '👵', diane: '🧑‍🍼' };
-  for (const f of FEEDS) {
+  const labels = { parents: '👨‍👩‍👦‍👦', andy: '🟠', ariel: '🔵', younette: '👵', mamimo: '👵' };
+  const primaryIds = ['parents', ...Object.keys(caregivers)];
+  const render = (box, f) => {
     const div = document.createElement('div');
     div.className = 'feed ' + f.id;
     div.innerHTML = `<h3>${labels[f.id] || '📅'} ${f.name}</h3><p>${f.desc}</p>
@@ -631,7 +647,12 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
       navigator.clipboard.writeText(e.target.dataset.url).then(() => { e.target.textContent = '✅ Adresse copiée'; setTimeout(() => e.target.textContent = "🔗 Copier l'adresse (Mac / Google / Outlook)", 2000); });
     };
     box.appendChild(div);
-  }
+  };
+  const main = document.getElementById('feeds'), more = document.getElementById('feeds-secondary');
+  // Flux principaux (parents + gardiens) en avant ; flux par enfant repliés dans le bloc secondaire
+  FEEDS.filter(f => primaryIds.includes(f.id)).forEach(f => render(main, f));
+  FEEDS.filter(f => !primaryIds.includes(f.id)).forEach(f => render(more, f));
+  if (!more.children.length) more.parentElement.style.display = 'none';
 })();
 
 // ============ TABS & FILTRES ============
