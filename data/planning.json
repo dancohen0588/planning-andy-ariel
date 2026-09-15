@@ -1,207 +1,112 @@
 {
   "site": "https://planning-andy-ariel.dan0588.workers.dev",
-  "schoolYear": {
-    "start": "2026-09-01",
-    "end": "2027-07-07"
-  },
+  "schoolYear": { "start": "2026-09-01", "end": "2027-07-07" },
+
+  "families": [
+    { "id": "parents", "name": "Andy & Ariel – Parents", "children": ["andy", "ariel"] },
+    { "id": "parents-sacha-nora", "name": "Sacha & Nora – Parents", "children": ["sacha", "nora"] },
+    { "id": "parents-esmeralda", "name": "Esmeralda – Parents", "children": ["esmeralda"] },
+    { "id": "parents-simon", "name": "Simon – Parents", "children": ["simon"] }
+  ],
+
   "children": {
     "andy": {
-      "name": "Andy",
-      "school": "Marianne Picard",
-      "cls": "andy",
-      "emoji": "🟠",
-      "schoolEnd": {
-        "1": "16h40",
-        "2": "16h40",
-        "3": "13h35",
-        "4": "16h40",
-        "5": "13h35"
-      },
+      "name": "Andy", "school": "Marianne Picard", "emoji": "🟠", "color": "#d97706", "bg": "#fef3c7",
+      "schoolEnd": { "1": "16h40", "2": "16h40", "3": "13h35", "4": "16h40", "5": "13h35" },
       "activities": [
-        {
-          "dow": 2,
-          "name": "⚽ Entraînement foot",
-          "start": "17h15",
-          "end": "18h30",
-          "address": "21 Av. Alexandre Maistrasse, 92500 Rueil-Malmaison"
-        },
-        {
-          "dow": 3,
-          "name": "✍️ Graphologie",
-          "start": "14h20",
-          "end": "15h00",
-          "address": "12 Rue de Varize, 75016 Paris"
-        },
-        {
-          "dow": 3,
-          "name": "🎭 Cours de théâtre",
-          "start": "15h30",
-          "end": "16h30",
-          "address": "45 rue du Général Delestraint, 75016 Paris",
-          "contact": "Christine · 06 83 53 89 50"
-        },
-        {
-          "dow": 5,
-          "name": "⚽ Entraînement foot",
-          "start": "17h15",
-          "end": "18h30",
-          "address": "21 Av. Alexandre Maistrasse, 92500 Rueil-Malmaison"
-        }
+        { "dow": 2, "name": "⚽ Entraînement foot", "start": "17h15", "end": "18h30", "address": "21 Av. Alexandre Maistrasse, 92500 Rueil-Malmaison" },
+        { "dow": 3, "name": "✍️ Graphologie", "start": "14h20", "end": "15h00", "address": "12 Rue de Varize, 75016 Paris" },
+        { "dow": 3, "name": "🎭 Cours de théâtre", "start": "15h30", "end": "16h30", "address": "45 rue du Général Delestraint, 75016 Paris", "contact": "Christine · 06 83 53 89 50" },
+        { "dow": 5, "name": "⚽ Entraînement foot", "start": "17h15", "end": "18h30", "address": "21 Av. Alexandre Maistrasse, 92500 Rueil-Malmaison" }
       ],
       "vacations": [
-        {
-          "start": "2026-09-11",
-          "end": "2026-09-11",
-          "name": "Roch Achana"
-        },
-        {
-          "start": "2026-09-21",
-          "end": "2026-09-21",
-          "name": "Kippour"
-        },
-        {
-          "start": "2026-09-25",
-          "end": "2026-10-05",
-          "name": "Souccot"
-        },
-        {
-          "start": "2026-11-11",
-          "end": "2026-11-16",
-          "name": "Armistice"
-        },
-        {
-          "start": "2026-12-19",
-          "end": "2027-01-03",
-          "name": "Vacances de Noël"
-        },
-        {
-          "start": "2027-02-01",
-          "end": "2027-02-01",
-          "name": "Journée pédagogique"
-        },
-        {
-          "start": "2027-02-13",
-          "end": "2027-02-28",
-          "name": "Vacances de février"
-        },
-        {
-          "start": "2027-03-23",
-          "end": "2027-03-23",
-          "name": "Pourim (après-midi seulement)",
-          "partial": true
-        },
-        {
-          "start": "2027-04-17",
-          "end": "2027-05-02",
-          "name": "Pessah"
-        },
-        {
-          "start": "2027-06-10",
-          "end": "2027-06-13",
-          "name": "Chavouot"
-        },
-        {
-          "start": "2027-07-07",
-          "end": "2027-08-31",
-          "name": "Grandes vacances"
-        }
+        { "start": "2026-09-11", "end": "2026-09-11", "name": "Roch Achana" },
+        { "start": "2026-09-21", "end": "2026-09-21", "name": "Kippour" },
+        { "start": "2026-09-25", "end": "2026-10-05", "name": "Souccot" },
+        { "start": "2026-11-11", "end": "2026-11-16", "name": "Armistice" },
+        { "start": "2026-12-19", "end": "2027-01-03", "name": "Vacances de Noël" },
+        { "start": "2027-02-01", "end": "2027-02-01", "name": "Journée pédagogique" },
+        { "start": "2027-02-13", "end": "2027-02-28", "name": "Vacances de février" },
+        { "start": "2027-03-23", "end": "2027-03-23", "name": "Pourim (après-midi seulement)", "partial": true },
+        { "start": "2027-04-17", "end": "2027-05-02", "name": "Pessah" },
+        { "start": "2027-06-10", "end": "2027-06-13", "name": "Chavouot" },
+        { "start": "2027-07-07", "end": "2027-08-31", "name": "Grandes vacances" }
       ]
     },
     "ariel": {
-      "name": "Ariel",
-      "school": "École publique",
-      "cls": "ariel",
-      "emoji": "🔵",
-      "schoolEnd": {
-        "1": "16h30",
-        "2": "16h30",
-        "3": null,
-        "4": "16h30",
-        "5": "16h30"
-      },
+      "name": "Ariel", "school": "École publique", "emoji": "🔵", "color": "#2563eb", "bg": "#dbeafe",
+      "schoolEnd": { "1": "16h30", "2": "16h30", "3": null, "4": "16h30", "5": "16h30" },
       "activities": [
-        {
-          "dow": 3,
-          "name": "🤸 Cours de gym",
-          "start": "11h15",
-          "end": "12h15",
-          "address": "UAS Saint-Cloud – Gymnase Huet, 19 rue de Buzenval, 92210 Saint-Cloud"
-        },
-        {
-          "dow": 3,
-          "name": "🎨 Art plastique (Petite Académie)",
-          "start": "15h45",
-          "end": "16h45",
-          "address": "20 Rue Gustave Zédé, 75016 Paris"
-        }
+        { "dow": 3, "name": "🤸 Cours de gym", "start": "11h15", "end": "12h15", "address": "UAS Saint-Cloud – Gymnase Huet, 19 rue de Buzenval, 92210 Saint-Cloud" },
+        { "dow": 3, "name": "🎨 Art plastique (Petite Académie)", "start": "15h45", "end": "16h45", "address": "20 Rue Gustave Zédé, 75016 Paris" }
       ],
       "vacations": [
-        {
-          "start": "2026-10-17",
-          "end": "2026-11-01",
-          "name": "Toussaint"
-        },
-        {
-          "start": "2026-12-19",
-          "end": "2027-01-03",
-          "name": "Vacances de Noël"
-        },
-        {
-          "start": "2027-02-06",
-          "end": "2027-02-21",
-          "name": "Vacances d'hiver"
-        },
-        {
-          "start": "2027-04-03",
-          "end": "2027-04-18",
-          "name": "Vacances de printemps"
-        },
-        {
-          "start": "2027-05-06",
-          "end": "2027-05-09",
-          "name": "Pont de l'Ascension"
-        },
-        {
-          "start": "2027-07-03",
-          "end": "2027-08-31",
-          "name": "Grandes vacances"
-        }
+        { "start": "2026-10-17", "end": "2026-11-01", "name": "Toussaint" },
+        { "start": "2026-12-19", "end": "2027-01-03", "name": "Vacances de Noël" },
+        { "start": "2027-02-06", "end": "2027-02-21", "name": "Vacances d'hiver" },
+        { "start": "2027-04-03", "end": "2027-04-18", "name": "Vacances de printemps" },
+        { "start": "2027-05-06", "end": "2027-05-09", "name": "Pont de l'Ascension" },
+        { "start": "2027-07-03", "end": "2027-08-31", "name": "Grandes vacances" }
       ]
-    }
-  },
-  "caregivers": {
-    "younette": {
-      "name": "Mamie Younette",
-      "short": "Y",
-      "emoji": "👵",
-      "color": "#7c3aed",
-      "bg": "#ede9fe"
     },
-    "mamimo": {
-      "name": "Mamimo",
-      "short": "M",
-      "emoji": "👵",
-      "color": "#db2777",
-      "bg": "#fce7f3"
+    "sacha": {
+      "name": "Sacha", "school": "École (maternelle)", "emoji": "🔴", "color": "#e11d48", "bg": "#ffe4e6",
+      "schoolEnd": { "1": "16h30", "2": "16h30", "3": "11h30", "4": "16h30", "5": "16h30" },
+      "activities": [],
+      "vacations": "ariel"
+    },
+    "nora": {
+      "name": "Nora", "school": "Crèche", "emoji": "🟢", "color": "#0d9488", "bg": "#ccfbf1",
+      "schoolEnd": { "1": "18h00", "2": "18h00", "3": "18h00", "4": "18h00", "5": "18h00" },
+      "activities": [],
+      "vacations": [
+        { "start": "2026-12-19", "end": "2027-01-03", "name": "Vacances de Noël" },
+        { "start": "2027-07-03", "end": "2027-08-31", "name": "Grandes vacances" }
+      ]
+    },
+    "esmeralda": {
+      "name": "Esmeralda", "school": "École", "emoji": "🟣", "color": "#9333ea", "bg": "#f3e8ff",
+      "schoolEnd": { "1": "15h00", "2": "15h00", "3": "12h30", "4": "15h00", "5": "15h00" },
+      "activities": [],
+      "vacations": "ariel"
+    },
+    "simon": {
+      "name": "Simon", "school": "École", "emoji": "🟤", "color": "#92400e", "bg": "#fdecd3",
+      "schoolEnd": { "1": "16h30", "2": "16h30", "3": "11h30", "4": "16h30", "5": "16h30" },
+      "activities": [],
+      "vacations": "ariel"
     }
   },
+
+  "caregivers": {
+    "younette": { "name": "Mamie Younette", "short": "Y", "emoji": "👵", "color": "#4f46e5", "bg": "#e0e7ff" },
+    "mamimo":   { "name": "Mamimo",         "short": "M", "emoji": "👵", "color": "#db2777", "bg": "#fce7f3" }
+  },
+
+  "wednesday": {
+    "needsCare": ["andy", "ariel"],
+    "defaults": {
+      "younette": ["sacha", "nora"],
+      "mamimo": ["esmeralda"]
+    }
+  },
+
   "careSchedule": {
-    "2026-09-09": "younette",
-    "2026-09-11": "younette",
-    "2026-09-16": "mamimo",
-    "2026-09-23": "younette",
-    "2026-09-30": "younette"
+    "2026-09-09": { "younette": ["andy", "ariel"] },
+    "2026-09-11": { "younette": ["andy", "ariel"] },
+    "2026-09-16": { "mamimo":   ["andy", "ariel"] },
+    "2026-09-23": { "younette": ["andy", "ariel"] },
+    "2026-09-30": { "younette": ["andy", "ariel"] }
   },
+
   "pickups": {
-    "2026-09-15": "mamimo"
+    "2026-09-15": { "mamimo": ["andy", "ariel"] },
+    "_exemple_sortie_anticipee": { "younette": { "kids": ["nora"], "at": "16h00" } }
   },
+
+  "recurringCare": [],
+
   "absences": [
-    {
-      "who": "younette",
-      "start": "2026-10-07",
-      "end": "2026-10-21",
-      "name": "Vacances de Mamie Younette"
-    }
-  ],
-  "recurringCare": []
+    { "who": "younette", "start": "2026-10-07", "end": "2026-10-21", "name": "Vacances de Mamie Younette" }
+  ]
 }
