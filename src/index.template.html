@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Planning Andy & Ariel 2026-2027</title>
+<title>Planning des enfants 2026-2027</title>
 <style>
   :root {
-    --andy: #d97706; --andy-bg: #fef3c7; --andy-dark: #92400e;
-    --ariel: #2563eb; --ariel-bg: #dbeafe; --ariel-dark: #1e3a8a;
     --commun: #059669; --commun-bg: #d1fae5;
     --weekend: #f1f5f9; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
   }
@@ -21,14 +19,26 @@
   h2 { font-size: 22px; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
 
   /* Toolbar */
-  .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-  .tabs, .filters { display: flex; gap: 6px; background: white; padding: 6px; border-radius: 12px; border: 1px solid var(--border); }
-  .tab, .chip { border: none; background: transparent; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; color: var(--muted); transition: all .15s; }
+  .toolbar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .tabs { display: flex; gap: 6px; background: white; padding: 6px; border-radius: 12px; border: 1px solid var(--border); align-self: flex-start; }
+  .tab { border: none; background: transparent; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; color: var(--muted); transition: all .15s; }
   .tab.active { background: var(--text); color: white; }
-  .chip.active[data-filter="all"] { background: var(--text); color: white; }
-  .chip.active[data-filter="andy"] { background: var(--andy); color: white; }
-  .chip.active[data-filter="ariel"] { background: var(--ariel); color: white; }
-  .chip:hover:not(.active), .tab:hover:not(.active) { background: #f1f5f9; }
+  .tab:hover:not(.active) { background: #f1f5f9; }
+  /* Sélection des enfants (cases à cocher) */
+  .kids { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: white; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--border); }
+  .kids .label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-right: 4px; }
+  .kid { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 10px; border-radius: 999px; border: 2px solid var(--kc); background: white; color: var(--kc); font-weight: 700; font-size: 14px; cursor: pointer; user-select: none; transition: all .15s; }
+  .kid input { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 2px solid var(--kc); border-radius: 5px; background: white; display: grid; place-content: center; margin: 0; cursor: pointer; }
+  .kid input::before { content: ''; width: 10px; height: 10px; border-radius: 2px; background: white; transform: scale(0); transition: transform .12s; }
+  .kid input:checked::before { transform: scale(1); }
+  .kid.on { background: var(--kc); color: white; }
+  .kid.on input { background: var(--kc); border-color: white; }
+  .kid.on input::before { background: white; }
+  .kid:not(.on) { opacity: .55; }
+  .kid.disabled { cursor: not-allowed; }
+  .kids .all { margin-left: auto; border: none; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .kids .all:hover { background: #e2e8f0; }
+  .kids .all:disabled { opacity: .4; cursor: default; }
 
   .view { display: none; }
   .view.active { display: block; }
@@ -36,15 +46,12 @@
   /* Legend + stats */
   .legend { display: flex; justify-content: center; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
   .legend-item { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 13px; border: 2px solid; }
-  .legend-andy { background: var(--andy-bg); color: var(--andy); border-color: var(--andy); }
-  .legend-ariel { background: var(--ariel-bg); color: var(--ariel); border-color: var(--ariel); }
   .legend-commun { background: var(--commun-bg); color: var(--commun); border-color: var(--commun); }
   .legend-school { background: white; color: var(--muted); border-color: var(--border); }
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 24px; }
+  .lb { display: inline-block; width: 14px; height: 14px; border-radius: 50%; color: #fff; font-size: 9px; font-weight: 800; text-align: center; line-height: 14px; vertical-align: middle; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin: 16px 0 24px; }
   .stat { text-align: center; padding: 18px; border-radius: 12px; }
-  .stat.andy { background: var(--andy-bg); } .stat.ariel { background: var(--ariel-bg); } .stat.commun { background: var(--commun-bg); }
   .stat .number { font-size: 34px; font-weight: 800; line-height: 1; }
-  .stat.andy .number { color: var(--andy); } .stat.ariel .number { color: var(--ariel); } .stat.commun .number { color: var(--commun); }
   .stat .label { font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--muted); margin-top: 8px; letter-spacing: .05em; }
 
   /* Calendar */
@@ -58,29 +65,25 @@
   .day:not(.empty):hover { transform: scale(1.15); z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,.2); border-radius: 4px; }
   .day.empty { background: #fafafa; color: transparent; cursor: default; }
   .day.weekend { background: var(--weekend); color: var(--muted); }
-  .day.andy { background: var(--andy-bg); color: var(--andy); font-weight: 700; }
-  .day.ariel { background: var(--ariel-bg); color: var(--ariel); font-weight: 700; }
+  .day.vac { font-weight: 700; }
   .day.commun { background: var(--commun-bg); color: var(--commun); font-weight: 800; box-shadow: inset 0 0 0 2px var(--commun); }
-  .day.partial { background: linear-gradient(135deg, var(--andy-bg) 50%, white 50%); color: var(--andy); font-weight: 700; }
-  .day .badge { position: absolute; top: 2px; right: 2px; width: 13px; height: 13px; border-radius: 50%; color: white; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .day .badges { position: absolute; top: 2px; right: 2px; display: flex; gap: 1px; }
+  .day .badge { width: 13px; height: 13px; border-radius: 50%; color: white; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; line-height: 1; }
   .day.absence::after { content: '✈️'; position: absolute; top: 1px; left: 2px; font-size: 8px; }
+  .day.today { outline: 3px solid #ef4444; outline-offset: -3px; }
+  .day .dot { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; }
+  .day .dot i { width: 4px; height: 4px; border-radius: 50%; display: block; }
   .care-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .care-table th { text-align: left; padding: 8px 10px; background: #f8fafc; border-bottom: 2px solid var(--border); font-size: 11px; text-transform: uppercase; color: var(--muted); }
   .care-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
   .care-table tr.past td { opacity: .5; }
   .care-table tr.alert td { background: #fef2f2; }
-  .care-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; }
+  .care-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; margin: 2px 4px 2px 0; }
   .care-tag.todo { background: #fee2e2; color: #b91c1c; }
   .care-tag.none { background: #f1f5f9; color: var(--muted); font-weight: 500; }
   .people { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
   .person { padding: 12px 14px; border-radius: 10px; border-left: 5px solid; font-size: 13px; }
   .person b { font-size: 15px; display: block; }
-  .child-panel.care { border-color: #7c3aed; background: #faf5ff; }
-  .child-panel.care h4 { color: #7c3aed; }
-  .day.today { outline: 3px solid #ef4444; outline-offset: -3px; }
-  .day .dot { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; }
-  .day .dot i { width: 4px; height: 4px; border-radius: 50%; display: block; }
-  .dot .a { background: var(--andy); } .dot .r { background: var(--ariel); }
 
   /* Common cards */
   .card-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 24px; }
@@ -91,13 +94,12 @@
   .common-card .duration { display: inline-block; background: var(--commun); color: white; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
 
   /* Weekly view */
+  .week-wrap { overflow-x: auto; }
   .week-table { width: 100%; border-collapse: separate; border-spacing: 0; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 1px solid var(--border); }
-  .week-table th { padding: 14px; text-align: left; font-size: 15px; text-transform: uppercase; letter-spacing: .05em; }
-  .week-table th.day-col { background: var(--text); color: white; width: 130px; }
-  .week-table th.andy-col { background: var(--andy); color: white; }
-  .week-table th.ariel-col { background: var(--ariel); color: white; }
-  .week-table td { padding: 12px 14px; vertical-align: top; border-bottom: 1px solid var(--border); }
-  .week-table td.day-col { font-weight: 800; font-size: 16px; background: #f8fafc; }
+  .week-table th { padding: 14px; text-align: left; font-size: 15px; text-transform: uppercase; letter-spacing: .05em; color: white; }
+  .week-table th.day-col { background: var(--text); width: 130px; }
+  .week-table td { padding: 12px 14px; vertical-align: top; border-bottom: 1px solid var(--border); min-width: 180px; }
+  .week-table td.day-col { font-weight: 800; font-size: 16px; background: #f8fafc; min-width: 0; }
   .week-table td.day-col small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); }
   .week-table tr.wednesday td { background: #fffbeb; }
   .week-table tr.wednesday td.day-col { background: #fef3c7; }
@@ -105,35 +107,27 @@
   .block { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid; }
   .block.school { background: #f8fafc; border-left-color: #94a3b8; }
   .block.noschool { background: #fee2e2; border-left-color: #ef4444; }
-  .block.andy-act { background: var(--andy-bg); border-left-color: var(--andy); }
-  .block.ariel-act { background: var(--ariel-bg); border-left-color: var(--ariel); }
+  .block.act { background: var(--kb); border-left-color: var(--kc); }
   .block .time { font-weight: 800; font-size: 13px; white-space: nowrap; min-width: 92px; }
   .block .what { font-weight: 700; font-size: 14px; }
   .block .where { font-size: 12px; color: var(--muted); }
   .block .where a { color: inherit; }
   .block .contact { font-size: 12px; color: var(--muted); }
-  .block .note { font-size: 11px; color: #b45309; font-style: italic; }
-  .col-andy, .col-ariel { transition: opacity .2s; }
-  body[data-filter="andy"] .col-ariel { display: none; }
-  body[data-filter="ariel"] .col-andy { display: none; }
-  body[data-filter="andy"] .only-ariel, body[data-filter="ariel"] .only-andy { display: none; }
   .addresses { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-  .addr { padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: white; font-size: 13px; }
+  .addr { padding: 12px; border-radius: 10px; border: 1px solid var(--border); border-left: 4px solid var(--kc); background: white; font-size: 13px; }
   .addr b { display: block; font-size: 14px; }
-  .addr.andy { border-left: 4px solid var(--andy); } .addr.ariel { border-left: 4px solid var(--ariel); }
   .tip { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px 16px; font-size: 13px; margin-top: 16px; }
 
   /* Feeds */
   .feeds { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-  .feed { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: white; border-top: 5px solid var(--text); }
-  .feed.andy { border-top-color: var(--andy); } .feed.ariel { border-top-color: var(--ariel); }
-  .feed.younette { border-top-color: #7c3aed; } .feed.mamimo { border-top-color: #db2777; }
+  .feed { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: white; border-top: 5px solid var(--kc, var(--text)); }
   .feed h3 { font-size: 17px; margin-bottom: 4px; }
   .feed p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
   .feed .btn { display: block; text-align: center; padding: 12px; border-radius: 10px; background: var(--text); color: white; font-weight: 700; text-decoration: none; font-size: 14px; }
   .feed .copy { display: block; text-align: center; margin-top: 8px; font-size: 12px; color: var(--muted); background: #f1f5f9; border: none; width: 100%; padding: 8px; border-radius: 8px; cursor: pointer; }
   .feed .count { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
-  /* Flux secondaires (par enfant) : repliés et plus discrets */
+  .feeds-group { margin-top: 22px; }
+  .feeds-group h3.g { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 10px; }
   .feeds-more { margin-top: 20px; border-top: 1px dashed var(--border); padding-top: 12px; }
   .feeds-more summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); list-style: none; }
   .feeds-more summary::-webkit-details-marker { display: none; }
@@ -144,6 +138,7 @@
   .feeds-small .feed h3 { font-size: 15px; }
   .feeds-small .feed p { font-size: 12px; margin-bottom: 8px; }
   .feeds-small .feed .btn { padding: 9px; font-size: 13px; background: #475569; }
+
   /* Modal */
   .overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
   .overlay.open { display: flex; }
@@ -152,24 +147,20 @@
   .modal-head h3 { font-size: 20px; text-transform: capitalize; }
   .modal-head button { border: none; background: #f1f5f9; width: 34px; height: 34px; border-radius: 50%; font-size: 18px; cursor: pointer; }
   .modal-body { padding: 20px 24px; display: grid; gap: 16px; }
-  .child-panel { border-radius: 12px; padding: 14px; border: 2px solid; }
-  .child-panel.andy { border-color: var(--andy); background: #fffdf5; }
-  .child-panel.ariel { border-color: var(--ariel); background: #f7faff; }
-  .child-panel h4 { font-size: 16px; margin-bottom: 8px; }
-  .child-panel.andy h4 { color: var(--andy); } .child-panel.ariel h4 { color: var(--ariel); }
+  .child-panel { border-radius: 12px; padding: 14px; border: 2px solid var(--kc); background: var(--kb); }
+  .child-panel h4 { font-size: 16px; margin-bottom: 8px; color: var(--kc); }
+  .child-panel.care { --kc: #475569; --kb: #f8fafc; }
   .vac-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; }
   .vac-badge.off { background: var(--commun-bg); color: var(--commun); }
-  .vac-badge.school { background: #e2e8f0; color: var(--text); }
   .vac-badge.we { background: var(--weekend); color: var(--muted); }
 
   footer { text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
-  @media (max-width: 900px) { .calendar-grid { grid-template-columns: repeat(2, 1fr); } .stats { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .calendar-grid { grid-template-columns: repeat(2, 1fr); } }
 
   /* ===== Mobile-only elements ===== */
   .m-only { display: none; }
   .month-nav { display: none; }
   .day-picker { display: none; }
-
   @media (hover: none) { .day:not(.empty):hover { transform: none; box-shadow: none; } }
 
   @media (max-width: 640px) {
@@ -178,18 +169,17 @@
     .subtitle { font-size: 12px; }
     header { margin-bottom: 12px; padding-bottom: 12px; border-bottom-width: 2px; }
     h2 { font-size: 17px; margin-bottom: 12px; }
-
-    /* Toolbar sticky, full width */
     .toolbar { position: sticky; top: 0; z-index: 20; background: #fafafa; padding: 8px 0; margin-bottom: 10px; gap: 8px; }
-    .tabs, .filters { width: 100%; }
-    .tab, .chip { flex: 1; text-align: center; padding: 10px 6px; font-size: 13px; }
-
-    /* Cards */
+    .tabs { width: 100%; align-self: stretch; }
+    .tab { flex: 1; text-align: center; padding: 10px 6px; font-size: 13px; }
+    .kids { gap: 6px; padding: 6px 8px; }
+    .kids .label { display: none; }
+    .kid { padding: 6px 10px 6px 8px; font-size: 13px; gap: 6px; }
+    .kid input { width: 16px; height: 16px; }
+    .kids .all { padding: 6px 10px; }
     .card-section { padding: 14px; border-radius: 12px; margin-bottom: 14px; }
     .tip { font-size: 12px; padding: 10px 12px; }
-
-    /* Week: hide table, show day picker + cards */
-    .week-table { display: none; }
+    .week-wrap { display: none; }
     .day-picker { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .day-picker::-webkit-scrollbar { display: none; }
     .day-picker button { flex: 0 0 auto; min-width: 58px; padding: 10px 8px; border-radius: 12px; border: 1px solid var(--border); background: white; font-weight: 700; font-size: 13px; color: var(--muted); }
@@ -198,19 +188,13 @@
     .day-picker button.wed { border-color: #fcd34d; background: #fffbeb; }
     .day-picker button.wed.active { background: var(--text); }
     .m-only { display: block; }
-    .m-child { border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 2px solid; }
-    .m-child.andy { border-color: var(--andy); background: #fffdf5; }
-    .m-child.ariel { border-color: var(--ariel); background: #f7faff; }
-    .m-child h4 { font-size: 16px; margin-bottom: 8px; }
-    .m-child.andy h4 { color: var(--andy); } .m-child.ariel h4 { color: var(--ariel); }
-    .m-child.care { border-color: #7c3aed; background: #faf5ff; }
-    .m-child.care h4 { color: #7c3aed; }
+    .m-child { border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 2px solid var(--kc); background: var(--kb); }
+    .m-child h4 { font-size: 16px; margin-bottom: 8px; color: var(--kc); }
+    .m-child.care { --kc: #475569; --kb: #f8fafc; }
     .block { padding: 10px; gap: 8px; flex-direction: column; }
     .block .time { min-width: 0; font-size: 12px; color: var(--muted); }
     .block .what { font-size: 15px; }
     .block .where { font-size: 12px; line-height: 1.4; }
-
-    /* Care table -> cards */
     .care-table, .care-table tbody, .care-table tr, .care-table td { display: block; width: 100%; }
     .care-table thead { display: none; }
     .care-table tr { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; padding: 10px 12px; background: white; }
@@ -221,8 +205,6 @@
     .care-table td:last-child { font-size: 12px; color: var(--muted); }
     .people { grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
     .person { padding: 10px 12px; }
-
-    /* Calendar: one month at a time */
     .legend { gap: 6px; margin: 8px 0; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; padding-bottom: 4px; }
     .legend::-webkit-scrollbar { display: none; }
     .legend-item { flex: 0 0 auto; font-size: 11px; padding: 5px 10px; }
@@ -230,7 +212,6 @@
     .stat { padding: 10px 4px; border-radius: 10px; }
     .stat .number { font-size: 22px; }
     .stat .label { font-size: 9px; margin-top: 4px; letter-spacing: 0; }
-    body[data-filter="andy"] .stats, body[data-filter="ariel"] .stats { grid-template-columns: 1fr; }
     .hint { font-size: 12px; margin-bottom: 8px; }
     .month-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 6px; }
     .month-nav button { border: none; background: #f1f5f9; width: 42px; height: 42px; border-radius: 10px; font-size: 20px; font-weight: 800; }
@@ -242,12 +223,11 @@
     .month-header { display: none; }
     .day-name { font-size: 11px; padding: 8px 0; }
     .day { font-size: 15px; }
-    .day .badge { width: 16px; height: 16px; font-size: 9px; top: 3px; right: 3px; }
+    .day .badge { width: 16px; height: 16px; font-size: 9px; }
+    .day .badges { top: 3px; right: 3px; }
     .day.absence::after { font-size: 10px; }
     .day .dot i { width: 5px; height: 5px; }
     .common-vacations { grid-template-columns: 1fr; gap: 10px; }
-
-    /* Modal -> bottom sheet */
     .overlay { padding: 0; align-items: flex-end; }
     .modal { border-radius: 20px 20px 0 0; max-height: 88vh; animation: slideUp .25s ease-out; }
     .modal::before { content: ''; display: block; width: 40px; height: 4px; background: #cbd5e1; border-radius: 2px; margin: 10px auto 0; }
@@ -261,11 +241,11 @@
   @media print { body { padding: 8px; background: white; } .toolbar, .hint { display: none; } .view { display: block !important; } .month, .card-section { box-shadow: none; break-inside: avoid; } }
 </style>
 </head>
-<body data-filter="all">
+<body>
 <div class="container">
   <header>
-    <h1>📅 Planning Andy & Ariel 2026-2027</h1>
-    <p class="subtitle">Andy (Marianne Picard) · Ariel (École publique – Zone C)</p>
+    <h1>📅 Planning des enfants 2026-2027</h1>
+    <p class="subtitle" id="subtitle"></p>
   </header>
 
   <div class="toolbar">
@@ -274,11 +254,7 @@
       <button class="tab" data-view="calendar">📆 Calendrier annuel</button>
       <button class="tab" data-view="subscribe">📲 S'abonner</button>
     </div>
-    <div class="filters">
-      <button class="chip active" data-filter="all">👨‍👦‍👦 Les deux</button>
-      <button class="chip" data-filter="andy">🟠 Andy</button>
-      <button class="chip" data-filter="ariel">🔵 Ariel</button>
-    </div>
+    <div class="kids" id="kids"><span class="label">Enfants</span></div>
   </div>
 
   <!-- ================= WEEK VIEW ================= -->
@@ -287,30 +263,21 @@
       <h2>🗓️ Semaine type (hors vacances)</h2>
       <div class="day-picker" id="day-picker"></div>
       <div class="m-only" id="week-mobile"></div>
-      <table class="week-table">
-        <thead>
-          <tr>
-            <th class="day-col">Jour</th>
-            <th class="andy-col col-andy">🟠 Andy</th>
-            <th class="ariel-col col-ariel">🔵 Ariel</th>
-          </tr>
-        </thead>
-        <tbody id="week-body"></tbody>
-      </table>
-      <div class="tip only-both">💡 <b>Mercredi = journée chargée.</b> Andy sort à 13h35 → graphologie (rue de Varize) 14h20-15h → théâtre (rue du Général-Delestraint) 15h30. Ariel : gym à Saint-Cloud le matin, puis art plastique (rue Gustave-Zédé) à 15h45. Les deux activités de 15h30/15h45 sont toutes deux dans le 16ᵉ, à quelques minutes l'une de l'autre.</div>
+      <div class="week-wrap"><table class="week-table"><thead id="week-head"></thead><tbody id="week-body"></tbody></table></div>
+      <div class="tip" id="tip-wed" style="display:none">💡 <b>Mercredi = journée chargée.</b> Andy sort à 13h35 → graphologie (rue de Varize) 14h20-15h → théâtre (rue du Général-Delestraint) 15h30. Ariel : gym à Saint-Cloud le matin, puis art plastique (rue Gustave-Zédé) à 15h45. Les deux activités de 15h30/15h45 sont toutes deux dans le 16ᵉ, à quelques minutes l'une de l'autre.</div>
     </div>
 
     <div class="card-section">
       <h2>👵 Gardes</h2>
       <div class="people" id="people"></div>
       <table class="care-table">
-        <thead><tr><th>Mercredi</th><th>Garde</th><th>Contexte</th></tr></thead>
+        <thead><tr><th>Mercredi</th><th>Gardes</th><th>Contexte</th></tr></thead>
         <tbody id="care-body"></tbody>
       </table>
-      <div class="tip">ℹ️ Le planning des grands-mères est complété au fil de l'année. Les mercredis « À définir » restent à attribuer (Mamimo ou Mamie Younette). Les sorties d'école ponctuelles assurées par une grand-mère apparaissent dans le calendrier annuel (pastille sur le jour) et dans son flux.</div>
+      <div class="tip" id="tip-care"></div>
     </div>
 
-    <div class="card-section">
+    <div class="card-section" id="addr-section">
       <h2>📍 Adresses utiles</h2>
       <div class="addresses" id="addresses"></div>
     </div>
@@ -318,19 +285,9 @@
 
   <!-- ================= CALENDAR VIEW ================= -->
   <section class="view" id="view-calendar">
-    <div class="legend">
-      <div class="legend-item legend-andy only-andy-both">🟠 Andy en vacances</div>
-      <div class="legend-item legend-ariel only-ariel-both">🔵 Ariel en vacances</div>
-      <div class="legend-item legend-commun only-both">🟢 Vacances communes</div>
-      <div class="legend-item legend-school">⚪ École · ⬜ Week-end</div>
-      <div class="legend-item legend-school"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#7c3aed;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">Y</span> Younette · <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#db2777;color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:14px">M</span> Mamimo · ✈️ absence</div>
-    </div>
-    <div class="stats">
-      <div class="stat andy col-andy"><div class="number">~71</div><div class="label">Jours de vacances – Andy</div></div>
-      <div class="stat ariel col-ariel"><div class="number">~76</div><div class="label">Jours de vacances – Ariel</div></div>
-      <div class="stat commun only-both"><div class="number">~38</div><div class="label">Jours en commun</div></div>
-    </div>
-    <p class="hint">👆 Cliquez sur un jour pour voir le détail (école, horaires, activités)</p>
+    <div class="legend" id="legend"></div>
+    <div class="stats" id="stats"></div>
+    <p class="hint">👆 Cliquez sur un jour pour voir le détail (école, horaires, activités, gardes)</p>
     <div class="month-nav">
       <button id="prev-month" aria-label="Mois précédent">‹</button>
       <select id="month-select"></select>
@@ -339,15 +296,9 @@
     </div>
     <div class="calendar-grid" id="calendar"></div>
 
-    <div class="card-section only-both">
-      <h2>🟢 Vacances communes (idéales pour les voyages en famille)</h2>
-      <div class="common-vacations">
-        <div class="common-card"><div class="title">🎄 Noël</div><div class="dates">Sam. 19 déc. 2026 → dim. 3 jan. 2027</div><span class="duration">16 jours</span></div>
-        <div class="common-card"><div class="title">❄️ Hiver / Février</div><div class="dates">Sam. 13 fév. → dim. 21 fév. 2027</div><span class="duration">9 jours</span></div>
-        <div class="common-card"><div class="title">🌸 Printemps / Pessah</div><div class="dates">Sam. 17 → dim. 18 avril 2027</div><span class="duration">2 jours</span></div>
-        <div class="common-card"><div class="title">🌤️ Ascension</div><div class="dates">Jeu. 6 → dim. 9 mai 2027 (dans Pessah pour Andy)</div><span class="duration">4 jours</span></div>
-        <div class="common-card"><div class="title">☀️ Été</div><div class="dates">À partir du mer. 7 juillet 2027 (Andy finit le 6)</div><span class="duration">Été commun</span></div>
-      </div>
+    <div class="card-section" id="common-section">
+      <h2 id="common-title">🟢 Vacances communes</h2>
+      <div class="common-vacations" id="common"></div>
     </div>
   </section>
 
@@ -356,14 +307,16 @@
     <div class="card-section">
       <h2>📲 Abonnez-vous depuis votre iPhone</h2>
       <p style="font-size:14px;margin-bottom:14px">Chaque personne a son propre calendrier, qui se met à jour <b>automatiquement</b> sur le téléphone dès que le planning change ici. Choisissez le vôtre et touchez <b>« Ajouter à mon iPhone »</b>.</p>
-      <div class="feeds" id="feeds"></div>
+      <div class="feeds-group"><h3 class="g">👵 Grands-mères</h3><div class="feeds" id="feeds-caregivers"></div></div>
+      <div class="feeds-group"><h3 class="g">👨‍👩‍👧 Parents</h3><div class="feeds" id="feeds-families"></div></div>
       <details class="feeds-more">
-        <summary>Calendriers par enfant (optionnel — pour ne suivre qu'Andy ou qu'Ariel)</summary>
-        <div class="feeds feeds-small" id="feeds-secondary"></div>
+        <summary>Calendriers par enfant (optionnel — pour ne suivre qu'un seul enfant)</summary>
+        <div class="feeds feeds-small" id="feeds-children"></div>
       </details>
       <div class="tip" style="margin-top:18px">
         <b>Comment ça marche ?</b><br>
-        1. Chaque personne prend <b>son</b> calendrier (Younette ≠ Mamimo : le contenu est différent).<br>2. Touchez le bouton de votre calendrier → l'iPhone propose « S'abonner au calendrier » → <b>S'abonner</b> → <b>Terminé</b>.<br>
+        1. Chaque personne prend <b>son</b> calendrier (le contenu est différent d'un calendrier à l'autre).<br>
+        2. Touchez le bouton de votre calendrier → l'iPhone propose « S'abonner au calendrier » → <b>S'abonner</b> → <b>Terminé</b>.<br>
         3. Le calendrier apparaît dans l'app Calendrier, section « Abonnements ».<br>
         4. Pour choisir la fréquence de mise à jour : <i>Réglages → Apps → Calendrier → Comptes → Calendriers abonnés → [le calendrier] → Mettre à jour</i> (toutes les heures conseillé).<br>
         5. Sur Mac / Google Agenda / Outlook : utilisez le lien « copier l'adresse » et ajoutez-le comme calendrier « par URL ».
@@ -372,7 +325,7 @@
   </section>
 
   <footer>
-    <p>Sources : Calendrier Marianne Picard 2026-2027 · Arrêté du 22 octobre 2025 (Zone C). Certaines dates peuvent être modifiées par l'école. · Calendriers iPhone : onglet « S'abonner ».</p>
+    <p>Sources : calendriers des écoles et arrêté du 22 octobre 2025 (Zone C). Certaines dates peuvent être modifiées par les écoles. · Calendriers iPhone : onglet « S'abonner ».</p>
   </footer>
 </div>
 
@@ -388,184 +341,215 @@
 // ============ DONNÉES (injectées par build.js depuis data/planning.json) ============
 const DATA = /*__DATA__*/null;
 const FEEDS = /*__FEEDS__*/null;
+const CH = DATA.children, CG = DATA.caregivers, CHILD_IDS = Object.keys(CH);
+const careSchedule = DATA.careSchedule || {}, pickups = DATA.pickups || {}, absences = DATA.absences || [], recurringCare = DATA.recurringCare || [];
+const WED = DATA.wednesday || { needsCare: CHILD_IDS, defaults: {} };
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+const YEAR_START = new Date(DATA.schoolYear.start + 'T00:00:00'), YEAR_END = new Date(DATA.schoolYear.end + 'T00:00:00');
+
 const maps = a => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}`;
-const children = DATA.children, caregivers = DATA.caregivers, careSchedule = DATA.careSchedule, absences = DATA.absences, recurringCare = DATA.recurringCare || [], pickups = DATA.pickups || {};
-// Qui récupère à la sortie d'école ce jour-là ? -> { who, kids[] } ou null
-// Une sortie ponctuelle (pickups[date]) prime sur la règle récurrente du jour de semaine.
-function pickupOn(date) {
-  const dow = date.getDay();
-  const rule = recurringCare.find(r => r.days.includes(dow));
-  const who = pickups[iso(date)] || (rule && rule.who);
-  if (!who || !caregivers[who]) return null;
-  const kids = ['andy','ariel'].filter(k => { const v = vacOn(date, k); return !(v && !v.partial) && children[k].schoolEnd[dow]; });
-  return kids.length ? { who, kids, label: (rule && rule.label) || "Sortie d'école" } : null;
-}
 const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const frShort = s => s.split('-').reverse().join('/');
-function absencesOn(date) {
-  const t = date.getTime();
-  return absences.filter(a => t >= new Date(a.start+'T00:00:00') && t <= new Date(a.end+'T23:59:59'));
-}
-
+const kstyle = k => `--kc:${CH[k].color};--kb:${CH[k].bg}`;
+const names = kids => kids.map(k => CH[k].name).join(' & ');
 const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const dayFull = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const dayShort = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const dayNames = ['L','M','M','J','V','S','D'];
 
-let filter = 'all';
-const show = c => filter === 'all' || filter === c;
-
-function vacOn(date, child) {
+function vacOn(date, k) {
   const t = date.getTime();
-  for (const r of children[child].vacations) {
-    if (t >= new Date(r.start+'T00:00:00') && t <= new Date(r.end+'T23:59:59')) return r;
-  }
+  for (const r of CH[k].vacations) if (t >= new Date(r.start+'T00:00:00') && t <= new Date(r.end+'T23:59:59')) return r;
   return null;
+}
+const offFull = (date, k) => { const v = vacOn(date, k); return !!(v && !v.partial); };
+const hasSchool = (date, k) => !offFull(date, k) && !!CH[k].schoolEnd[date.getDay()];
+const absencesOn = date => { const t = date.getTime(); return absences.filter(a => t >= new Date(a.start+'T00:00:00') && t <= new Date(a.end+'T23:59:59')); };
+const absent = (date, who) => absencesOn(date).some(a => a.who === who);
+
+// Gardes journée effectives pour une date (même logique que build.js) -> { gardien: enfants[] }
+function careOn(date) {
+  const explicit = careSchedule[iso(date)] || {}, res = {};
+  for (const who in CG) {
+    let kids = explicit[who] && explicit[who].kids;
+    if (!kids && date.getDay() === 3 && !absent(date, who)) kids = (WED.defaults[who] || []).filter(k => !offFull(date, k));
+    if (kids && kids.length) res[who] = kids;
+  }
+  return res;
+}
+// Sorties d'école effectives -> { gardien: enfants[] }
+function pickupsOn(date) {
+  const dow = date.getDay(), res = {};
+  const add = (who, kids) => { const ok = kids.filter(k => hasSchool(date, k)); if (ok.length) res[who] = [...new Set([...(res[who] || []), ...ok])]; };
+  for (const r of recurringCare) if (r.days.includes(dow)) add(r.who, r.kids || CHILD_IDS);
+  const p = pickups[iso(date)] || {};
+  for (const who in p) add(who, p[who].kids);
+  return res;
+}
+const pickupTime = (date, who, k) => { const p = (pickups[iso(date)] || {})[who]; return (p && p.at) || CH[k].schoolEnd[date.getDay()]; };
+// Mercredi "à définir" pour les enfants sélectionnés
+function todoOn(date, sel) {
+  if (date.getDay() !== 3) return [];
+  const assigned = new Set(Object.values(careOn(date)).flat());
+  return WED.needsCare.filter(k => sel.includes(k) && !assigned.has(k) && !offFull(date, k));
+}
+const filterAssign = (assign, sel) => { const r = {}; for (const w in assign) { const kids = assign[w].filter(k => sel.includes(k)); if (kids.length) r[w] = kids; } return r; };
+const tag = (who, kids, extra = '') => `<span class="care-tag" style="background:${CG[who].bg};color:${CG[who].color}">${CG[who].emoji} ${CG[who].name.split(' ').pop()} : ${names(kids)}${extra}</span>`;
+
+// ============ SÉLECTION DES ENFANTS ============
+let selected = new Set(CHILD_IDS);
+try { const s = JSON.parse(localStorage.getItem('kids-selected') || 'null'); if (Array.isArray(s) && s.some(k => CH[k])) selected = new Set(s.filter(k => CH[k])); } catch (e) {}
+const SEL = () => CHILD_IDS.filter(k => selected.has(k));
+
+function buildKidPicker() {
+  const box = document.getElementById('kids');
+  box.querySelectorAll('.kid, .all').forEach(el => el.remove());
+  for (const k of CHILD_IDS) {
+    const on = selected.has(k), last = on && selected.size === 1;
+    const lab = document.createElement('label');
+    lab.className = 'kid' + (on ? ' on' : '') + (last ? ' disabled' : '');
+    lab.style = kstyle(k);
+    lab.title = last ? 'Au moins un enfant doit rester sélectionné' : '';
+    lab.innerHTML = `<input type="checkbox" ${on ? 'checked' : ''} ${last ? 'disabled' : ''}> ${CH[k].name}`;
+    lab.querySelector('input').onchange = e => { if (e.target.checked) selected.add(k); else if (selected.size > 1) selected.delete(k); rerender(); };
+    box.appendChild(lab);
+  }
+  const all = document.createElement('button');
+  all.className = 'all';
+  all.textContent = 'Tous';
+  all.disabled = selected.size === CHILD_IDS.length;
+  all.onclick = () => { selected = new Set(CHILD_IDS); rerender(); };
+  box.appendChild(all);
+  document.getElementById('subtitle').textContent = SEL().map(k => `${CH[k].name} (${CH[k].school})`).join(' · ');
 }
 
 // ============ SEMAINE TYPE ============
-function blockHTML(b, cls) {
-  return `<div class="block ${cls}">
+function blockHTML(b, k) {
+  return `<div class="block act" style="${kstyle(k)}">
     <div class="time">${b.start}${b.end ? ' – ' + b.end : ''}</div>
     <div><div class="what">${b.name}</div>
       ${b.address ? `<div class="where">📍 <a href="${maps(b.address)}" target="_blank">${b.address}</a></div>` : ''}
       ${b.contact ? `<div class="contact">📞 ${b.contact}</div>` : ''}
-      ${b.note ? `<div class="note">${b.note}</div>` : ''}
     </div></div>`;
 }
-
-function childDayHTML(child, dow) {
-  const c = children[child];
+function childDayHTML(k, dow) {
+  const c = CH[k];
   let html = '';
   const end = c.schoolEnd[dow];
   if (dow >= 1 && dow <= 5) {
     html += end
-      ? `<div class="block school"><div class="time">→ ${end}</div><div><div class="what">🏫 École (${c.school})</div><div class="where">Sortie à ${end}</div></div></div>`
+      ? `<div class="block school"><div class="time">→ ${end}</div><div><div class="what">🏫 ${c.school}</div><div class="where">Sortie à ${end}</div></div></div>`
       : `<div class="block noschool"><div class="time">—</div><div><div class="what">🚫 Pas d'école</div></div></div>`;
-    const r = recurringCare.find(r => r.days.includes(dow));
-    if (end && r && caregivers[r.who]) { const cg = caregivers[r.who]; html += `<div class="block pickup" style="background:${cg.bg};border-left-color:${cg.color}"><div class="time">${end}</div><div><div class="what">${cg.emoji} ${r.label} par ${cg.name.split(' ')[0]}</div></div></div>`; }
+    const r = recurringCare.find(r => r.days.includes(dow) && (!r.kids || r.kids.includes(k)));
+    if (end && r && CG[r.who]) { const cg = CG[r.who]; html += `<div class="block" style="background:${cg.bg};border-left-color:${cg.color}"><div class="time">${end}</div><div><div class="what">${cg.emoji} ${r.label} par ${cg.name.split(' ').pop()}</div></div></div>`; }
+    if (dow === 3) for (const who in WED.defaults) if (WED.defaults[who].includes(k)) { const cg = CG[who]; html += `<div class="block" style="background:${cg.bg};border-left-color:${cg.color}"><div class="time">${end || 'journée'}</div><div><div class="what">${cg.emoji} Garde par ${cg.name.split(' ').pop()}</div><div class="where">sauf mercredis attribués autrement</div></div></div>`; }
   }
-  c.activities.filter(a => a.dow === dow).sort((a,b) => a.start.localeCompare(b.start))
-    .forEach(a => html += blockHTML(a, child + '-act'));
+  c.activities.filter(a => a.dow === dow).sort((a,b) => a.start.localeCompare(b.start)).forEach(a => html += blockHTML(a, k));
   return html || '<span style="color:var(--muted)">Libre</span>';
 }
-
 function buildWeek() {
-  const tb = document.getElementById('week-body');
-  tb.innerHTML = '';
+  const sel = SEL();
+  document.getElementById('week-head').innerHTML = `<tr><th class="day-col">Jour</th>${sel.map(k => `<th style="background:${CH[k].color}">${CH[k].emoji} ${CH[k].name}</th>`).join('')}</tr>`;
+  const tb = document.getElementById('week-body'); tb.innerHTML = '';
   for (let dow = 1; dow <= 7; dow++) {
-    const d = dow % 7;
-    const tr = document.createElement('tr');
+    const d = dow % 7, tr = document.createElement('tr');
     if (dow === 3) tr.className = 'wednesday';
     if (dow >= 6) tr.className = 'weekend';
-    tr.innerHTML = `<td class="day-col">${dayFull[d]}${dow===3?'<small>journée chargée</small>':''}</td>
-      <td class="col-andy">${dow>=6 ? 'Week-end 🎉' : childDayHTML('andy', dow)}</td>
-      <td class="col-ariel">${dow>=6 ? 'Week-end 🎉' : childDayHTML('ariel', dow)}</td>`;
+    tr.innerHTML = `<td class="day-col">${dayFull[d]}${dow===3?'<small>gardes</small>':''}</td>` + sel.map(k => `<td>${dow>=6 ? 'Week-end 🎉' : childDayHTML(k, dow)}</td>`).join('');
     tb.appendChild(tr);
   }
-  const ad = document.getElementById('addresses');
+  const ad = document.getElementById('addresses'); ad.innerHTML = '';
   const seen = new Set();
-  for (const k of ['andy','ariel']) for (const a of children[k].activities) {
+  for (const k of sel) for (const a of CH[k].activities) {
     if (seen.has(a.address)) continue; seen.add(a.address);
-    ad.innerHTML += `<div class="addr ${k} col-${k}"><b>${a.name} — ${children[k].name}</b>📍 <a href="${maps(a.address)}" target="_blank">${a.address}</a>${a.contact ? '<br>📞 ' + a.contact : ''}</div>`;
+    ad.innerHTML += `<div class="addr" style="${kstyle(k)}"><b>${a.name} — ${CH[k].name}</b>📍 <a href="${maps(a.address)}" target="_blank">${a.address}</a>${a.contact ? '<br>📞 ' + a.contact : ''}</div>`;
   }
+  document.getElementById('addr-section').style.display = seen.size ? '' : 'none';
+  document.getElementById('tip-wed').style.display = sel.includes('andy') && sel.includes('ariel') ? '' : 'none';
 }
 
 // ============ SEMAINE MOBILE ============
 let mobileDay = (TODAY.getDay() >= 1 && TODAY.getDay() <= 5) ? TODAY.getDay() : 1;
-const dayShort = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 function buildWeekMobile() {
-  const pk = document.getElementById('day-picker');
-  pk.innerHTML = '';
+  const pk = document.getElementById('day-picker'); pk.innerHTML = '';
   for (let dow = 1; dow <= 7; dow++) {
-    const d = dow % 7;
-    const b = document.createElement('button');
+    const d = dow % 7, b = document.createElement('button');
     b.className = (dow === mobileDay ? 'active ' : '') + (dow === 3 ? 'wed' : '');
-    b.innerHTML = `${dayShort[d]}${dow===3?'<small>chargé</small>':''}`;
+    b.innerHTML = `${dayShort[d]}${dow===3?'<small>gardes</small>':''}`;
     b.onclick = () => { mobileDay = dow; buildWeekMobile(); };
     pk.appendChild(b);
   }
-  const box = document.getElementById('week-mobile');
-  const dow = mobileDay;
-  if (dow >= 6) { box.innerHTML = '<div class="m-child" style="border-color:var(--border);background:var(--weekend);text-align:center">Week-end 🎉</div>'; return; }
+  const box = document.getElementById('week-mobile'), dow = mobileDay;
+  if (dow >= 6) { box.innerHTML = '<div class="m-child" style="--kc:var(--border);--kb:var(--weekend);text-align:center">Week-end 🎉</div>'; return; }
   let html = '';
-  for (const k of ['andy','ariel']) {
-    if (!show(k)) continue;
-    html += `<div class="m-child ${k}"><h4>${k==='andy'?'🟠':'🔵'} ${children[k].name}</h4>${childDayHTML(k, dow)}</div>`;
-  }
-  if (dow === 3) html += `<div class="m-child care"><h4>👵 Garde du mercredi</h4><p style="font-size:13px">Alternance Mamie Younette / Mamimo — voir la liste ci-dessous pour les dates.</p></div>`;
+  for (const k of SEL()) html += `<div class="m-child" style="${kstyle(k)}"><h4>${CH[k].emoji} ${CH[k].name}</h4>${childDayHTML(k, dow)}</div>`;
+  if (dow === 3) html += `<div class="m-child care"><h4>👵 Gardes du mercredi</h4><p style="font-size:13px">Voir la liste des mercredis ci-dessous pour savoir qui garde qui.</p></div>`;
   box.innerHTML = html;
 }
 
 // ============ GARDES ============
 function buildCare() {
-  const pp = document.getElementById('people');
-  for (const k in caregivers) {
-    const c = caregivers[k];
-    pp.innerHTML += `<div class="person" style="background:${c.bg};border-color:${c.color}"><b>${c.emoji} ${c.name}</b>${recurringCare.filter(r=>r.who===k).map(r=>r.label+' : '+r.days.map(d=>dayFull[d].toLowerCase()).join(' & ')+' (uniquement l\'enfant qui a école)').join('<br>') || 'Garde alternée du mercredi'}${absences.filter(a=>a.who===k).map(a=>'<br>✈️ Absent(e) du '+frShort(a.start)+' au '+frShort(a.end)).join('')}</div>`;
+  const sel = SEL();
+  const pp = document.getElementById('people'); pp.innerHTML = '';
+  for (const who in CG) {
+    const c = CG[who];
+    const def = (WED.defaults[who] || []).filter(k => sel.includes(k));
+    const rec = recurringCare.filter(r => r.who === who).map(r => `${r.label} : ${r.days.map(d => dayFull[d].toLowerCase()).join(' & ')}`);
+    const lines = [def.length ? `Mercredi par défaut : ${names(def)}` : '', ...rec, ...absences.filter(a => a.who === who).map(a => `✈️ Absent(e) du ${frShort(a.start)} au ${frShort(a.end)}`)].filter(Boolean);
+    pp.innerHTML += `<div class="person" style="background:${c.bg};border-color:${c.color}"><b>${c.emoji} ${c.name}</b>${lines.join('<br>') || 'Gardes selon le planning ci-dessous'}</div>`;
   }
-  const tb = document.getElementById('care-body');
-  let d = new Date(2026, 8, 9); // premier mercredi de l'année scolaire
-  const end = new Date(2027, 6, 7);
-  while (d <= end) {
-    const key = iso(d);
-    const care = careSchedule[key];
-    const a = vacOn(d, 'andy'), r = vacOn(d, 'ariel');
+  const tb = document.getElementById('care-body'); tb.innerHTML = '';
+  let d = new Date(YEAR_START); while (d.getDay() !== 3) d = new Date(d.getTime() + 86400000);
+  for (; d <= YEAR_END; d = new Date(d.getTime() + 7*86400000)) {
+    const care = filterAssign(careOn(d), sel), todo = todoOn(d, sel), abs = absencesOn(d);
     const ctx = [];
-    if (a && r) ctx.push('🟢 Les deux en vacances (' + a.name + ' / ' + r.name + ')');
-    else { if (a) ctx.push('🟠 Andy en vacances (' + a.name + ')'); if (r) ctx.push('🔵 Ariel en vacances (' + r.name + ')'); }
-    const abs = absencesOn(d);
+    const off = sel.filter(k => vacOn(d, k));
+    if (off.length) ctx.push(off.map(k => `${CH[k].emoji} ${CH[k].name} en vacances (${vacOn(d, k).name})`).join('<br>'));
     abs.forEach(x => ctx.push('✈️ ' + x.name));
-    let tag;
-    if (care) { const c = caregivers[care]; tag = `<span class="care-tag" style="background:${c.bg};color:${c.color}">${c.emoji} ${c.name}</span>`; }
-    else if (a && r) tag = '<span class="care-tag none">— (vacances)</span>';
-    else tag = '<span class="care-tag todo">À définir</span>';
+    let tags = Object.keys(care).map(who => tag(who, care[who])).join('');
+    if (todo.length) tags += `<span class="care-tag todo">À définir : ${names(todo)}</span>`;
+    if (!tags) tags = '<span class="care-tag none">— (vacances / rien à prévoir)</span>';
     const tr = document.createElement('tr');
     if (d < TODAY) tr.className = 'past';
-    if (!care && !(a && r) && abs.length) tr.className += ' alert';
-    tr.innerHTML = `<td><b>${d.getDate()} ${monthNames[d.getMonth()].toLowerCase()}</b> ${d.getFullYear()}</td><td>${tag}</td><td>${ctx.join('<br>') || '<span style="color:var(--muted)">Semaine normale</span>'}</td>`;
+    if (todo.length && abs.length) tr.className += ' alert';
+    tr.innerHTML = `<td><b>${d.getDate()} ${monthNames[d.getMonth()].toLowerCase()}</b> ${d.getFullYear()}</td><td>${tags}</td><td>${ctx.join('<br>') || '<span style="color:var(--muted)">Semaine normale</span>'}</td>`;
     tb.appendChild(tr);
-    d = new Date(d.getTime() + 7*86400000);
   }
+  const needs = WED.needsCare.filter(k => sel.includes(k));
+  document.getElementById('tip-care').innerHTML = `ℹ️ Les mercredis sont attribués au fil de l'année.${needs.length ? ` Un mercredi « À définir » pour ${names(needs)} reste à attribuer (Mamimo ou Mamie Younette).` : ''} Les gardes par défaut ne s'appliquent pas pendant les vacances de l'enfant ni pendant une absence de la grand-mère. Les sorties d'école ponctuelles apparaissent sur le calendrier annuel (pastille sur le jour).`;
 }
 
 // ============ CALENDRIER ============
+const MONTHS = []; { let y = YEAR_START.getFullYear(), m = YEAR_START.getMonth(); while (y < YEAR_END.getFullYear() || (y === YEAR_END.getFullYear() && m <= YEAR_END.getMonth() + 1)) { MONTHS.push([y, m]); m++; if (m > 11) { m = 0; y++; } } }
+let activeMonth = 0;
 function buildCalendar() {
-  const container = document.getElementById('calendar');
-  container.innerHTML = '';
+  const sel = SEL();
+  const container = document.getElementById('calendar'); container.innerHTML = '';
   for (const [y, m] of MONTHS) {
     const monthDiv = document.createElement('div'); monthDiv.className = 'month';
     monthDiv.innerHTML = `<div class="month-header">${monthNames[m]} ${y}</div>`;
     const grid = document.createElement('div'); grid.className = 'month-grid';
     dayNames.forEach(dn => grid.innerHTML += `<div class="day-name">${dn}</div>`);
-    let startDay = (new Date(y, m, 1).getDay() + 6) % 7;
+    const startDay = (new Date(y, m, 1).getDay() + 6) % 7;
     for (let i = 0; i < startDay; i++) grid.innerHTML += '<div class="day empty"></div>';
     const last = new Date(y, m + 1, 0).getDate();
-    for (let d = 1; d <= last; d++) {
-      const date = new Date(y, m, d);
-      const dow = date.getDay();
-      const cell = document.createElement('div');
-      cell.className = 'day'; cell.textContent = d;
-      const a = show('andy') ? vacOn(date, 'andy') : null;
-      const r = show('ariel') ? vacOn(date, 'ariel') : null;
-      if (a && r) cell.classList.add('commun');
-      else if (a && a.partial) cell.classList.add('partial');
-      else if (a) cell.classList.add('andy');
-      else if (r) cell.classList.add('ariel');
+    for (let dd = 1; dd <= last; dd++) {
+      const date = new Date(y, m, dd), dow = date.getDay();
+      const cell = document.createElement('div'); cell.className = 'day'; cell.textContent = dd;
+      const off = sel.filter(k => vacOn(date, k));
+      if (off.length && off.length === sel.length && off.every(k => !vacOn(date, k).partial)) cell.classList.add('commun');
+      else if (off.length === 1) { cell.classList.add('vac'); cell.style.background = CH[off[0]].bg; cell.style.color = CH[off[0]].color; }
+      else if (off.length > 1) { const n = off.length, stops = off.map((k, i) => `${CH[k].bg} ${i*100/n}% ${(i+1)*100/n}%`).join(', '); cell.classList.add('vac'); cell.style.background = `linear-gradient(135deg, ${stops})`; cell.style.color = CH[off[0]].color; }
       else if (dow === 0 || dow === 6) cell.classList.add('weekend');
-      // activity dots
       if (dow >= 1 && dow <= 5) {
-        const dots = [];
-        if (show('andy') && !a && children.andy.activities.some(x => x.dow === dow)) dots.push('<i class="a"></i>');
-        if (show('ariel') && !r && children.ariel.activities.some(x => x.dow === dow)) dots.push('<i class="r"></i>');
+        const dots = sel.filter(k => !offFull(date, k) && CH[k].activities.some(x => x.dow === dow)).map(k => `<i style="background:${CH[k].color}"></i>`);
         if (dots.length) cell.innerHTML += `<span class="dot">${dots.join('')}</span>`;
       }
-      // garde du mercredi
-      const care = careSchedule[iso(date)];
-      if (care) { const cg = caregivers[care]; cell.innerHTML += `<span class="badge" style="background:${cg.color}" title="Garde : ${cg.name}">${cg.short}</span>`; }
-      const pk = !care && pickupOn(date);
-      if (pk) { const cg = caregivers[pk.who]; cell.innerHTML += `<span class="badge" style="background:${cg.color};opacity:.75" title="${cg.name} récupère ${pk.kids.map(x=>children[x].name).join(' & ')}">${cg.short}</span>`; }
-      // absences adultes
+      const care = filterAssign(careOn(date), sel), pk = filterAssign(pickupsOn(date), sel), todo = todoOn(date, sel);
+      const badges = [...Object.keys(care).map(w => `<span class="badge" style="background:${CG[w].color}" title="${CG[w].name} garde ${names(care[w])}">${CG[w].short}</span>`),
+        ...Object.keys(pk).filter(w => !care[w]).map(w => `<span class="badge" style="background:${CG[w].color};opacity:.7" title="${CG[w].name} récupère ${names(pk[w])} à ${pk[w].map(k => pickupTime(date, w, k)).sort()[0]}">${CG[w].short}</span>`),
+        ...(todo.length ? [`<span class="badge" style="background:#ef4444" title="Garde à définir : ${names(todo)}">?</span>`] : [])];
+      if (badges.length) cell.innerHTML += `<span class="badges">${badges.join('')}</span>`;
       const abs = absencesOn(date);
       if (abs.length) { cell.classList.add('absence'); cell.title = abs.map(x => x.name).join(', '); }
       if (date.getTime() === TODAY.getTime()) cell.classList.add('today');
@@ -575,53 +559,73 @@ function buildCalendar() {
     monthDiv.appendChild(grid); container.appendChild(monthDiv);
   }
   applyActiveMonth();
+  buildLegendStats();
 }
-let activeMonth = 0; // index dans months (0 = sept 2026)
-const MONTHS = [[2026,8],[2026,9],[2026,10],[2026,11],[2027,0],[2027,1],[2027,2],[2027,3],[2027,4],[2027,5],[2027,6],[2027,7]];
 (function initMonthNav() {
-  const sel = document.getElementById('month-select');
-  MONTHS.forEach(([y,m],i) => sel.innerHTML += `<option value="${i}">${monthNames[m]} ${y}</option>`);
+  const s = document.getElementById('month-select');
+  MONTHS.forEach(([y,m],i) => s.innerHTML += `<option value="${i}">${monthNames[m]} ${y}</option>`);
   const ti = MONTHS.findIndex(([y,m]) => y === TODAY.getFullYear() && m === TODAY.getMonth());
-  activeMonth = ti >= 0 ? ti : 0;
-  sel.value = activeMonth;
-  sel.onchange = () => { activeMonth = +sel.value; applyActiveMonth(); };
-  document.getElementById('prev-month').onclick = () => { activeMonth = Math.max(0, activeMonth - 1); sel.value = activeMonth; applyActiveMonth(); };
-  document.getElementById('next-month').onclick = () => { activeMonth = Math.min(MONTHS.length - 1, activeMonth + 1); sel.value = activeMonth; applyActiveMonth(); };
-  document.getElementById('today-btn').onclick = () => { activeMonth = ti >= 0 ? ti : 0; sel.value = activeMonth; applyActiveMonth(); };
+  activeMonth = ti >= 0 ? ti : 0; s.value = activeMonth;
+  s.onchange = () => { activeMonth = +s.value; applyActiveMonth(); };
+  document.getElementById('prev-month').onclick = () => { activeMonth = Math.max(0, activeMonth - 1); s.value = activeMonth; applyActiveMonth(); };
+  document.getElementById('next-month').onclick = () => { activeMonth = Math.min(MONTHS.length - 1, activeMonth + 1); s.value = activeMonth; applyActiveMonth(); };
+  document.getElementById('today-btn').onclick = () => { activeMonth = ti >= 0 ? ti : 0; s.value = activeMonth; applyActiveMonth(); };
 })();
-function applyActiveMonth() {
-  document.querySelectorAll('#calendar .month').forEach((el, i) => el.classList.toggle('active', i === activeMonth));
+function applyActiveMonth() { document.querySelectorAll('#calendar .month').forEach((el, i) => el.classList.toggle('active', i === activeMonth)); }
+
+function buildLegendStats() {
+  const sel = SEL();
+  const lg = document.getElementById('legend');
+  lg.innerHTML = sel.map(k => `<div class="legend-item" style="background:${CH[k].bg};color:${CH[k].color};border-color:${CH[k].color}">${CH[k].emoji} ${CH[k].name} en vacances</div>`).join('')
+    + (sel.length > 1 ? '<div class="legend-item legend-commun">🟢 Tous en vacances</div>' : '')
+    + '<div class="legend-item legend-school">⚪ École · ⬜ Week-end</div>'
+    + `<div class="legend-item legend-school">${Object.keys(CG).map(w => `<span class="lb" style="background:${CG[w].color}">${CG[w].short}</span> ${CG[w].name.split(' ').pop()}`).join(' · ')} · <span class="lb" style="background:#ef4444">?</span> à définir · ✈️ absence</div>`;
+  // Stats : jours de vacances dans l'année scolaire (week-ends inclus), et jours où tous les sélectionnés sont en vacances
+  const count = pred => { let n = 0; for (let d = new Date(YEAR_START); d <= YEAR_END; d = new Date(d.getTime() + 86400000)) if (pred(d)) n++; return n; };
+  let html = sel.map(k => `<div class="stat" style="background:${CH[k].bg}"><div class="number" style="color:${CH[k].color}">${count(d => offFull(d, k))}</div><div class="label">Jours de vacances – ${CH[k].name}</div></div>`).join('');
+  if (sel.length > 1) html += `<div class="stat" style="background:var(--commun-bg)"><div class="number" style="color:var(--commun)">${count(d => sel.every(k => offFull(d, k)))}</div><div class="label">Jours tous en vacances</div></div>`;
+  document.getElementById('stats').innerHTML = html;
+  // Vacances communes : plages de jours consécutifs où tous les sélectionnés sont en vacances
+  const sec = document.getElementById('common-section');
+  if (sel.length < 2) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  document.getElementById('common-title').textContent = `🟢 Vacances communes à ${names(sel)}`;
+  const runs = []; let cur = null;
+  const lastDay = new Date(YEAR_END.getFullYear(), 7, 31);
+  for (let d = new Date(YEAR_START); d <= lastDay; d = new Date(d.getTime() + 86400000)) {
+    const all = sel.every(k => offFull(d, k));
+    if (all && !cur) cur = { start: d, end: d, labels: new Set() };
+    if (all) { cur.end = d; sel.forEach(k => cur.labels.add(vacOn(d, k).name)); }
+    if (!all && cur) { runs.push(cur); cur = null; }
+  }
+  if (cur) runs.push(cur);
+  const fr = d => d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  document.getElementById('common').innerHTML = runs.map(r => { const n = Math.round((r.end - r.start) / 86400000) + 1; return `<div class="common-card"><div class="title">${[...r.labels].join(' / ')}</div><div class="dates">${fr(r.start)} → ${fr(r.end)}</div><span class="duration">${n} jour${n > 1 ? 's' : ''}</span></div>`; }).join('') || '<p style="color:var(--muted)">Aucune période commune.</p>';
 }
 
 // ============ MODAL ============
 function openDay(date) {
-  const dow = date.getDay();
+  const sel = SEL(), dow = date.getDay();
   document.getElementById('modal-title').textContent = `${dayFull[dow]} ${date.getDate()} ${monthNames[date.getMonth()].toLowerCase()} ${date.getFullYear()}`;
   let body = '';
-  for (const k of ['andy','ariel']) {
-    if (!show(k)) continue;
-    const c = children[k];
-    const vac = vacOn(date, k);
-    let inner = `<h4>${k==='andy'?'🟠':'🔵'} ${c.name}</h4>`;
+  for (const k of sel) {
+    const c = CH[k], vac = vacOn(date, k);
+    let inner = `<h4>${c.emoji} ${c.name}</h4>`;
     if (dow === 0 || dow === 6) inner += `<span class="vac-badge we">Week-end</span>`;
     else if (vac && !vac.partial) inner += `<span class="vac-badge off">🏖️ Vacances – ${vac.name}</span>`;
     else if (vac && vac.partial) inner += `<span class="vac-badge off">🎭 ${vac.name}</span><br><br>` + childDayHTML(k, dow);
     else inner += childDayHTML(k, dow);
     if (vac && !vac.partial && dow >= 1 && dow <= 5 && c.activities.some(x => x.dow === dow))
       inner += `<p style="font-size:12px;color:#b45309;margin-top:8px">⚠️ Activités habituelles du ${dayFull[dow].toLowerCase()} probablement suspendues pendant les vacances – à vérifier.</p>`;
-    body += `<div class="child-panel ${k}">${inner}</div>`;
+    body += `<div class="child-panel" style="${kstyle(k)}">${inner}</div>`;
   }
-  // panneau garde / absences
-  const care = careSchedule[iso(date)];
-  const abs = absencesOn(date);
-  const pk = pickupOn(date);
-  if (care || abs.length || dow === 3 || pk) {
-    let inner = '<h4>👵 Garde</h4>';
-    if (pk) { const cg = caregivers[pk.who]; inner += `<span class="care-tag" style="background:${cg.bg};color:${cg.color}">${cg.emoji} ${cg.name.split(' ')[0]} récupère ${pk.kids.map(x=>children[x].name+' ('+children[x].schoolEnd[dow]+')').join(' & ')}</span>`;
-      const off = ['andy','ariel'].filter(x => !pk.kids.includes(x)); if (off.length) inner += `<p style="font-size:12px;color:var(--muted);margin-top:6px">${off.map(x=>children[x].name).join(', ')} en vacances — pas à récupérer</p>`; }
-    if (care) { const c = caregivers[care]; inner += `<span class="care-tag" style="background:${c.bg};color:${c.color}">${c.emoji} ${c.name}</span>`; }
-    else if (dow === 3 && !(vacOn(date,'andy') && vacOn(date,'ariel'))) inner += '<span class="care-tag todo">Garde du mercredi à définir</span>';
-    abs.forEach(x => inner += `<p style="margin-top:8px;font-size:13px">✈️ ${x.name} (${x.start.split('-').reverse().join('/')} → ${x.end.split('-').reverse().join('/')})</p>`);
+  const care = filterAssign(careOn(date), sel), pk = filterAssign(pickupsOn(date), sel), todo = todoOn(date, sel), abs = absencesOn(date);
+  if (Object.keys(care).length || Object.keys(pk).length || todo.length || abs.length) {
+    let inner = '<h4>👵 Gardes</h4>';
+    for (const w in care) inner += tag(w, care[w], ' (journée)');
+    for (const w in pk) inner += tag(w, pk[w], ` — sortie ${pk[w].map(k => pickupTime(date, w, k)).sort()[0]}`);
+    if (todo.length) inner += `<span class="care-tag todo">À définir : ${names(todo)}</span>`;
+    abs.forEach(x => inner += `<p style="margin-top:8px;font-size:13px">✈️ ${x.name} (${frShort(x.start)} → ${frShort(x.end)})</p>`);
     body += `<div class="child-panel care">${inner}</div>`;
   }
   document.getElementById('modal-body').innerHTML = body;
@@ -634,50 +638,32 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 // ============ ABONNEMENTS ============
 (function buildFeeds() {
-  const labels = { parents: '👨‍👩‍👦‍👦', andy: '🟠', ariel: '🔵', younette: '👵', mamimo: '👵' };
-  const primaryIds = ['parents', ...Object.keys(caregivers)];
-  const render = (box, f) => {
+  const boxes = { caregiver: document.getElementById('feeds-caregivers'), family: document.getElementById('feeds-families'), child: document.getElementById('feeds-children') };
+  const icon = { caregiver: '👵', family: '👨‍👩‍👧', child: '📅' };
+  for (const f of FEEDS) {
     const div = document.createElement('div');
-    div.className = 'feed ' + f.id;
-    div.innerHTML = `<h3>${labels[f.id] || '📅'} ${f.name}</h3><p>${f.desc}</p>
+    div.className = 'feed'; div.style = `--kc:${f.color}`;
+    div.innerHTML = `<h3>${f.kind === 'child' ? CH[f.id].emoji : icon[f.kind]} ${f.name}</h3><p>${f.desc}</p>
       <a class="btn" href="${f.webcal}">📲 Ajouter à mon iPhone</a>
       <button class="copy" data-url="${f.https}">🔗 Copier l'adresse (Mac / Google / Outlook)</button>
       <div class="count">${f.count} événements</div>`;
-    div.querySelector('.copy').onclick = e => {
-      navigator.clipboard.writeText(e.target.dataset.url).then(() => { e.target.textContent = '✅ Adresse copiée'; setTimeout(() => e.target.textContent = "🔗 Copier l'adresse (Mac / Google / Outlook)", 2000); });
-    };
-    box.appendChild(div);
-  };
-  const main = document.getElementById('feeds'), more = document.getElementById('feeds-secondary');
-  // Flux principaux (parents + gardiens) en avant ; flux par enfant repliés dans le bloc secondaire
-  FEEDS.filter(f => primaryIds.includes(f.id)).forEach(f => render(main, f));
-  FEEDS.filter(f => !primaryIds.includes(f.id)).forEach(f => render(more, f));
-  if (!more.children.length) more.parentElement.style.display = 'none';
+    div.querySelector('.copy').onclick = e => navigator.clipboard.writeText(e.target.dataset.url).then(() => { e.target.textContent = '✅ Adresse copiée'; setTimeout(() => e.target.textContent = "🔗 Copier l'adresse (Mac / Google / Outlook)", 2000); });
+    (boxes[f.kind] || boxes.child).appendChild(div);
+  }
 })();
 
-// ============ TABS & FILTRES ============
+// ============ TABS & RENDU ============
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
   t.classList.add('active');
   document.getElementById('view-' + t.dataset.view).classList.add('active');
 });
-document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
-  document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
-  c.classList.add('active');
-  filter = c.dataset.filter;
-  document.body.dataset.filter = filter;
-  document.querySelectorAll('.only-both').forEach(el => el.style.display = filter === 'all' ? '' : 'none');
-  document.querySelectorAll('.only-andy-both').forEach(el => el.style.display = show('andy') ? '' : 'none');
-  document.querySelectorAll('.only-ariel-both').forEach(el => el.style.display = show('ariel') ? '' : 'none');
-  buildCalendar();
-  buildWeekMobile();
-});
-
-buildWeek();
-buildWeekMobile();
-buildCare();
-buildCalendar();
+function rerender() {
+  try { localStorage.setItem('kids-selected', JSON.stringify(SEL())); } catch (e) {}
+  buildKidPicker(); buildWeek(); buildWeekMobile(); buildCare(); buildCalendar();
+}
+rerender();
 </script>
 </body>
 </html>
