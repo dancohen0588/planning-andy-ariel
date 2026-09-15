@@ -140,27 +140,30 @@ for (let d = new Date(START); d <= END; d = addDays(d, 1)) {
   }
 }
 
-// Gardes récurrentes (ex. Diane lundi & jeudi : sortie d'école)
-for (const rule of (DATA.recurringCare || [])) {
-  const cg = DATA.caregivers[rule.who];
-  for (let d = new Date(START); d <= END; d = addDays(d, 1)) {
-    if (!rule.days.includes(d.getDay())) continue;
-    const dow = d.getDay();
-    const atSchool = ['andy', 'ariel'].filter(k => !(vacOn(d, k) && !vacOn(d, k).partial) && DATA.children[k].schoolEnd[dow]);
-    if (!atSchool.length) continue;
-    const off = ['andy', 'ariel'].filter(k => !atSchool.includes(k));
-    const names = atSchool.map(k => DATA.children[k].name).join(' & ');
-    const times = atSchool.map(k => DATA.children[k].schoolEnd[dow]).sort();
-    const desc = [
-      ...atSchool.map(k => `${DATA.children[k].emoji} ${DATA.children[k].schoolEnd[dow]} · ${DATA.children[k].name} — sortie (${DATA.children[k].school})`),
-      ...off.map(k => `${DATA.children[k].emoji} ${DATA.children[k].name} : en vacances (${vacOn(d, k).name}) — pas à récupérer`),
-      '', 'Activités après l\'école :',
-      dayProgram(d, atSchool).split('\n').filter(l => l.includes('–')).join('\n') || 'aucune',
-      '', `Mis à jour depuis ${SITE}`].join('\n');
-    ev.pickup.push({ uid: `pickup-${rule.who}-${iso(d)}`, start: d, startHM: hm(times[0]), endHM: rule.endHM, alarm: 60, who: rule.who, kids: atSchool,
-      summary: `${cg.emoji} ${cg.name.split(' ')[0]} récupère ${names}${off.length ? ' (' + off.map(k => DATA.children[k].name).join(', ') + ' en vacances)' : ''}`,
-      description: desc });
-  }
+// Sorties d'école : règles récurrentes (recurringCare, par jour de semaine)
+// + sorties ponctuelles (pickups : { "YYYY-MM-DD": "who" }), qui priment sur la règle du jour
+const PICKUPS = DATA.pickups || {};
+for (let d = new Date(START); d <= END; d = addDays(d, 1)) {
+  const key = iso(d), dow = d.getDay();
+  const rule = (DATA.recurringCare || []).find(r => r.days.includes(dow));
+  const who = PICKUPS[key] || (rule && rule.who);
+  if (!who) continue;
+  const cg = DATA.caregivers[who];
+  if (!cg) { console.warn(`⚠️  ${key} : gardien inconnu "${who}"`); continue; }
+  const atSchool = ['andy', 'ariel'].filter(k => !(vacOn(d, k) && !vacOn(d, k).partial) && DATA.children[k].schoolEnd[dow]);
+  if (!atSchool.length) continue;
+  const off = ['andy', 'ariel'].filter(k => !atSchool.includes(k));
+  const names = atSchool.map(k => DATA.children[k].name).join(' & ');
+  const times = atSchool.map(k => DATA.children[k].schoolEnd[dow]).sort();
+  const desc = [
+    ...atSchool.map(k => `${DATA.children[k].emoji} ${DATA.children[k].schoolEnd[dow]} · ${DATA.children[k].name} — sortie (${DATA.children[k].school})`),
+    ...off.map(k => `${DATA.children[k].emoji} ${DATA.children[k].name} : en vacances (${vacOn(d, k).name}) — pas à récupérer`),
+    '', 'Activités après l\'école :',
+    dayProgram(d, atSchool).split('\n').filter(l => l.includes('–')).join('\n') || 'aucune',
+    '', `Mis à jour depuis ${SITE}`].join('\n');
+  ev.pickup.push({ uid: `pickup-${who}-${key}`, start: d, startHM: hm(times[0]), endHM: (rule && rule.endHM) || '1830', alarm: 60, who, kids: atSchool,
+    summary: `${cg.emoji} ${cg.name.split(' ')[0]} récupère ${names}${off.length ? ' (' + off.map(k => DATA.children[k].name).join(', ') + ' en vacances)' : ''}`,
+    description: desc });
 }
 
 // Gardes : mercredis (alternance) + gardes exceptionnelles n'importe quel jour
@@ -205,7 +208,7 @@ const feeds = {
 };
 for (const k in DATA.caregivers) {
   const cg = DATA.caregivers[k];
-  feeds[k] = { name: `Garde Andy & Ariel – ${cg.name}`, desc: k === 'diane' ? 'Sorties d\'école du lundi et jeudi, mercredis de garde éventuels, vacances des enfants' : 'Vos mercredis de garde avec le programme détaillé, et les vacances des enfants',
+  feeds[k] = { name: `Garde Andy & Ariel – ${cg.name}`, desc: 'Vos jours de garde et sorties d\'école avec le programme détaillé, et les vacances des enfants',
     events: [...ev.care[k], ...ev.pickup.filter(e => e.who === k), ...ev.vac.andy, ...ev.vac.ariel, ...ev.absences.filter(a => a.uid.includes(k))] };
 }
 

@@ -1,5 +1,5 @@
 {
-  "site": "https://planning-andy-ariel-2026.netlify.app",
+  "site": "https://planning-andy-ariel.dan0588.workers.dev",
   "schoolYear": {
     "start": "2026-09-01",
     "end": "2027-07-07"
@@ -183,13 +183,6 @@
       "emoji": "👵",
       "color": "#db2777",
       "bg": "#fce7f3"
-    },
-    "diane": {
-      "name": "Diane (baby-sitter)",
-      "short": "D",
-      "emoji": "🧑‍🍼",
-      "color": "#0d9488",
-      "bg": "#ccfbf1"
     }
   },
   "careSchedule": {
@@ -199,6 +192,9 @@
     "2026-09-23": "younette",
     "2026-09-30": "younette"
   },
+  "pickups": {
+    "2026-09-15": "mamimo"
+  },
   "absences": [
     {
       "who": "younette",
@@ -207,15 +203,5 @@
       "name": "Vacances de Mamie Younette"
     }
   ],
-  "recurringCare": [
-    {
-      "who": "diane",
-      "days": [
-        1,
-        4
-      ],
-      "label": "Sortie d'école",
-      "endHM": "1830"
-    }
-  ]
+  "recurringCare": []
 }
