@@ -12,16 +12,18 @@ const path = require('path');
 const crypto = require('crypto');
 
 const DATA = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/planning.json'), 'utf8'));
-const SITE = (process.env.SITE_URL || process.env.URL || DATA.site).replace(/\/$/, '');
+const rawSite = (process.env.SITE_URL || process.env.URL || DATA.site).trim().replace(/\/$/, '');
+const SITE = /^https?:\/\//.test(rawSite) ? rawSite : `https://${rawSite}`; // tolère "domaine.tld" sans schéma
 const OUT = path.join(__dirname, 'dist');
 const FEEDS = path.join(OUT, 'feeds');
 fs.mkdirSync(FEEDS, { recursive: true });
 
-const FEED_SECRET = process.env.FEED_SECRET;
+const FEED_SECRET = (process.env.FEED_SECRET || '').trim();
 if (!FEED_SECRET) console.warn('⚠️  FEED_SECRET non défini : les noms de flux .ics seront devinables');
 const feedFile = id => FEED_SECRET
   ? `${id}-${crypto.createHash('sha256').update(FEED_SECRET + id).digest('hex').slice(0, 12)}.ics`
   : `${id}.ics`;
+console.log(`Site : ${SITE} · flux ${FEED_SECRET ? 'avec' : 'SANS'} suffixe secret`);
 
 // ---------------------------------------------------------------- utils
 const pad = n => String(n).padStart(2, '0');
